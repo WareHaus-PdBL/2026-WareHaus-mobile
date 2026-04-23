@@ -6,6 +6,7 @@ version: 1.0.0+1
 workspace:
   - packages/core_ui
   - packages/core_services
+  - packages/zone
 
 environment:
   sdk: ^3.8.1
@@ -14,11 +15,15 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.8
+  dio: ^5.0.0
 
   core_ui:
     path: packages/core_ui
   core_services:
     path: packages/core_services
+  zone:
+    path: packages/zone
+  flutter_dotenv: ^6.0.1
 
 dev_dependencies:
   flutter_test:
@@ -28,6 +33,9 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - .env
 
 melos:
   scripts:
