@@ -1,0 +1,36 @@
+name: mobile
+description: "A new Flutter project."
+publish_to: "none"
+version: 1.0.0+1
+
+workspace:
+  - packages/core_ui
+  - packages/core_services
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  core_ui:
+    path: packages/core_ui
+  core_services:
+    path: packages/core_services
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  melos: ^7.5.1
+
+flutter:
+  uses-material-design: true
+
+melos:
+  scripts:
+    analyze:
+      description: "Run Flutter analyzer across all workspace packages"
+      run: dart run melos exec -- "flutter analyze"
