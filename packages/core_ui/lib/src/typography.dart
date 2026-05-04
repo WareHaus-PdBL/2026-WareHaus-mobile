@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 import 'colors.dart';
 
 class WHTypography {
+  static const TextStyle title = TextStyle(
+    fontSize: 28,
+    fontWeight: FontWeight.bold,
+    color: WHColors.textPrimary,
+  );
+
   static const TextStyle heading1 = TextStyle(
     fontSize: 24,
     fontWeight: FontWeight.bold,

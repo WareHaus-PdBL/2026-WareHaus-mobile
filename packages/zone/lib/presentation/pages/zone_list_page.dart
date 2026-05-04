@@ -6,7 +6,6 @@ import 'package:zone/presentation/bloc/zone_event.dart';
 import 'package:zone/presentation/bloc/zone_state.dart';
 import 'package:zone/presentation/pages/zone_detail_page.dart';
 import 'package:zone/presentation/widgets/zone_card.dart';
-import 'package:zone/presentation/widgets/zone_loading_skeleton.dart';
 
 class ZoneListPage extends StatefulWidget {
   const ZoneListPage({super.key});
@@ -31,15 +30,29 @@ class _ZoneListPageState extends State<ZoneListPage> {
         Widget buildScaffold({required Widget body}) {
           return Scaffold(
             backgroundColor: WHColors.background,
-            appBar: AppBar(
-              backgroundColor: WHColors.background,
-              elevation: 0,
-              title: Text(
-                'Zone List',
-                style: WHTypography.heading1.copyWith(color: WHColors.primary),
+            appBar: WHAppbar(title: 'Zone Management'),
+            body: Container(
+              color: WHColors.background,
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 16),
+                  const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("Zone Hierarchy", style: WHTypography.heading1),
+                      Text(
+                        "Manage your warehouse zones efficiently",
+                        style: WHTypography.caption,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Expanded(child: body),
+                ],
               ),
             ),
-            body: body,
             floatingActionButton: FloatingActionButton(
               onPressed: () {},
               backgroundColor: WHColors.primary,
@@ -50,41 +63,42 @@ class _ZoneListPageState extends State<ZoneListPage> {
 
         if (state is ZoneLoading) {
           return buildScaffold(
-            body: ListView.builder(
-              itemCount: 4,
-              itemExtent: 98,
-              cacheExtent: 392,
-              addAutomaticKeepAlives: false,
-              addRepaintBoundaries: true,
-              itemBuilder: (context, index) {
-                return const ZoneLoadingSkeleton();
-              },
+            body: Center(
+              child: CircularProgressIndicator(color: WHColors.primary),
             ),
           );
         } else if (state is ZoneLoaded) {
           return buildScaffold(
-            body: ListView.builder(
-              key: const PageStorageKey('zone_list_key'),
-              itemExtent: 98,
-              cacheExtent: 588,
-              addAutomaticKeepAlives: false,
-              addRepaintBoundaries: true,
-              itemCount: state.zones.length,
-              itemBuilder: (context, index) {
-                return ZoneCard(
-                  zone: state.zones[index],
-                  onTap: () async {
-                    await Navigator.of(context).push(
-                      PageRouteBuilder(
-                        pageBuilder: (_, _, _) =>
-                            ZoneDetailPage(zoneId: state.zones[index].id),
-                        transitionDuration: Duration.zero,
-                        reverseTransitionDuration: Duration.zero,
-                      ),
-                    );
-                  },
-                );
-              },
+            body: Column(
+              children: [
+                const WHSearch(hintText: "Search zones..."),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: ListView.builder(
+                    key: const PageStorageKey('zone_list_key'),
+                    itemExtent: 98,
+                    cacheExtent: 588,
+                    addAutomaticKeepAlives: false,
+                    addRepaintBoundaries: true,
+                    itemCount: state.zones.length,
+                    itemBuilder: (context, index) {
+                      return ZoneCard(
+                        zone: state.zones[index],
+                        onTap: () async {
+                          await Navigator.of(context).push(
+                            PageRouteBuilder(
+                              pageBuilder: (_, _, _) =>
+                                  ZoneDetailPage(zoneId: state.zones[index].id),
+                              transitionDuration: Duration.zero,
+                              reverseTransitionDuration: Duration.zero,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           );
         } else if (state is ZoneError) {
