@@ -68,13 +68,13 @@ class WHBottomNav extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: isSelected ? WHColors.primary : WHColors.grey),
+          Icon(icon, color: isSelected ? WHColors.secondary3 : WHColors.grey3),
           Text(
             label,
             style: TextStyle(
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? WHColors.primary : WHColors.grey,
+              color: isSelected ? WHColors.secondary3 : WHColors.grey3,
             ),
           ),
         ],

@@ -18,8 +18,8 @@ class MainPage extends StatelessWidget {
             index: state.currentIndex,
             children: const [
               ZoneListPage(),
-              const Center(child: Text("Inventory Page")),
-              const Center(child: Text("Profile Page")),
+              Center(child: Text("Inventory Page")),
+              Center(child: Text("Profile Page")),
             ],
           ),
           bottomNavigationBar: WHBottomNav(
@@ -31,7 +31,7 @@ class MainPage extends StatelessWidget {
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerDocked,
           floatingActionButton: FloatingActionButton(
-            backgroundColor: WHColors.primary,
+            backgroundColor: WHColors.surface,
             shape: const CircleBorder(),
             onPressed: () {
               // Logika scanner barcode diletakkan di sini

@@ -16,7 +16,7 @@ class ZoneCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: WHColors.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: WHColors.grey.withOpacity(0.12)),
+          border: Border.all(color: WHColors.grey3.withValues(alpha: 0.12)),
         ),
         child: Material(
           color: Colors.transparent,
@@ -30,13 +30,13 @@ class ZoneCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: WHColors.primary.withOpacity(0.1),
+                      color: WHColors.primary3.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       zone.zoneCode,
                       style: WHTypography.heading2.copyWith(
-                        color: WHColors.primary,
+                        color: WHColors.primary1,
                       ),
                     ),
                   ),
@@ -63,7 +63,7 @@ class ZoneCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const Icon(Icons.chevron_right, color: WHColors.grey),
+                  const Icon(Icons.chevron_right, color: WHColors.grey3),
                 ],
               ),
             ),

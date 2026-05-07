@@ -13,7 +13,7 @@ class WHAppbar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       elevation: 0,
       shape: const Border(
-        bottom: BorderSide(color: WHColors.primary, width: 0.5),
+        bottom: BorderSide(color: WHColors.primary3, width: 0.5),
       ),
     );
   }

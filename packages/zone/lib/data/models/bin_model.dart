@@ -2,20 +2,13 @@ import 'package:zone/domain/entities/bin.dart';
 
 class BinModel extends Bin {
   BinModel({
-    required String id,
-    required String binCode,
-    required int capacity,
-    required int currentVolume,
-    required String qrCodePath,
-    String? zoneCode,
-  }) : super(
-         id: id,
-         binCode: binCode,
-         capacity: capacity,
-         currentVolume: currentVolume,
-         qrCodePath: qrCodePath,
-         zoneCode: zoneCode,
-       );
+    required super.id,
+    required super.binCode,
+    required super.capacity,
+    required super.currentVolume,
+    required super.qrCodePath,
+    super.zoneCode,
+  });
 
   factory BinModel.fromJson(Map<String, dynamic> json) {
     return BinModel(

@@ -55,7 +55,7 @@ class _ZoneListPageState extends State<ZoneListPage> {
             ),
             floatingActionButton: FloatingActionButton(
               onPressed: () {},
-              backgroundColor: WHColors.primary,
+              backgroundColor: WHColors.primary3,
               child: const Icon(Icons.add, color: Colors.white),
             ),
           );
@@ -64,7 +64,7 @@ class _ZoneListPageState extends State<ZoneListPage> {
         if (state is ZoneLoading) {
           return buildScaffold(
             body: Center(
-              child: CircularProgressIndicator(color: WHColors.primary),
+              child: CircularProgressIndicator(color: WHColors.primary4),
             ),
           );
         } else if (state is ZoneLoaded) {

@@ -15,7 +15,7 @@ class ZoneVisualizer extends StatelessWidget {
           padding: const EdgeInsetsGeometry.all(16),
           child: Text(
             "Warehouse Grid : ${zone.zoneCode}",
-            style: WHTypography.heading2.copyWith(color: WHColors.primary),
+            style: WHTypography.heading2.copyWith(color: WHColors.grey1),
           ),
         ),
         Expanded(
@@ -35,8 +35,8 @@ class ZoneVisualizer extends StatelessWidget {
 
               return Container(
                 decoration: BoxDecoration(
-                  color: WHColors.primary.withOpacity(0.1),
-                  border: Border.all(color: WHColors.primary, width: 2),
+                  color: WHColors.primary5.withValues(alpha: 0.1),
+                  border: Border.all(color: WHColors.primary1, width: 2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -44,7 +44,7 @@ class ZoneVisualizer extends StatelessWidget {
                   children: [
                     const Icon(
                       Icons.shelves,
-                      color: WHColors.primary,
+                      color: WHColors.primary5,
                       size: 48,
                     ),
                     const SizedBox(height: 8),
