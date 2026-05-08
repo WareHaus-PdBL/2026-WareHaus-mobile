@@ -14,8 +14,6 @@ class DesignSystemGalleryPage extends StatefulWidget {
 }
 
 class _DesignSystemGalleryPageState extends State<DesignSystemGalleryPage> {
-  int _currentNavIndex = 0;
-
   @override
   Widget build(BuildContext context) {
     // Data dummy buat testing
