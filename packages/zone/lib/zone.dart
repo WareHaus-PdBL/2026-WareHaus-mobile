@@ -8,3 +8,5 @@ export 'domain/usecases/delete_zone.dart';
 export 'domain/usecases/get_zone_details.dart';
 export 'domain/usecases/get_zones.dart';
 export 'domain/usecases/update_zone.dart';
+export 'presentation/widgets/zone_card.dart';
+export 'presentation/widgets/zone_visualizer.dart';
