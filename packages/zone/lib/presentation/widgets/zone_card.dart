@@ -30,13 +30,13 @@ class ZoneCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: WHColors.primary3.withValues(alpha: 0.1),
+                      color: WHColors.secondary5,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
                       zone.zoneCode,
                       style: WHTypography.heading2.copyWith(
-                        color: WHColors.primary1,
+                        color: WHColors.surface,
                       ),
                     ),
                   ),
