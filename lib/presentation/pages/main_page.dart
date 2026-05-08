@@ -17,9 +17,10 @@ class MainPage extends StatelessWidget {
           body: IndexedStack(
             index: state.currentIndex,
             children: const [
-              ZoneListPage(),
-              Center(child: Text("Inventory Page")),
-              Center(child: Text("Profile Page")),
+              DesignSystemGalleryPage(),
+              Center(child: Text("Products Page")),
+              Center(child: Text("Flows Page")),
+              ZoneListPage(),              
             ],
           ),
           bottomNavigationBar: WHBottomNav(
@@ -28,16 +29,16 @@ class MainPage extends StatelessWidget {
               context.read<NavigationBloc>().add(ChangeTabEvent(index));
             },
           ),
-          floatingActionButtonLocation:
+          /* floatingActionButtonLocation:
               FloatingActionButtonLocation.centerDocked,
-          floatingActionButton: FloatingActionButton(
+            floatingActionButton: FloatingActionButton(
             backgroundColor: WHColors.surface,
             shape: const CircleBorder(),
             onPressed: () {
               // Logika scanner barcode diletakkan di sini
             },
             child: const Icon(Icons.qr_code_scanner, color: Colors.white),
-          ),
+          ),*/
         );
       },
     );
