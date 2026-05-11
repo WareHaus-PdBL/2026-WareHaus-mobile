@@ -23,6 +23,8 @@ dependencies:
     path: packages/core_services
   zone:
     path: packages/zone
+  inbound:
+    path: packages/inbound
   flutter_dotenv: ^6.0.1
   flutter_bloc: ^9.1.1
 
