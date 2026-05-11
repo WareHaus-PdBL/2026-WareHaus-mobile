@@ -5,6 +5,7 @@ class PurchaseOrder {
   final String poNumber;
   final String supplierName;
   final String status;
+  final DateTime orderDate;
   final List<PurchaseOrderItem> items;
 
   const PurchaseOrder({
@@ -12,6 +13,7 @@ class PurchaseOrder {
     required this.poNumber,
     required this.supplierName,
     required this.status,
+    required this.orderDate,
     required this.items,
   });
 }
