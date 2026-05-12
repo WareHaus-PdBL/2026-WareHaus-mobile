@@ -50,7 +50,11 @@ class WHOrderCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
               border: Border(
                 left: BorderSide(
-                  color: _isCompleted ?  WHColors.success1 : WHColors.grey4,
+                  color: _isCompleted
+                      ? WHColors.success2
+                      : _isQueued
+                      ? Colors.transparent
+                      : WHColors.grey3,
                   width: 4,
                 ),
               ),
