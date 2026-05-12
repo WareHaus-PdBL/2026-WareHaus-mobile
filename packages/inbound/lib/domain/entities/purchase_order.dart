@@ -7,6 +7,9 @@ class PurchaseOrder {
   final String status;
   final DateTime orderDate;
   final List<PurchaseOrderItem> items;
+  // Progress jumlah item untuk card
+  final int? progressCurrent;
+  final int? progressTotal;
 
   const PurchaseOrder({
     required this.id,
@@ -15,5 +18,7 @@ class PurchaseOrder {
     required this.status,
     required this.orderDate,
     required this.items,
+    required this.progressCurrent,
+    required this.progressTotal,
   });
 }

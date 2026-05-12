@@ -3,14 +3,71 @@ import '../src/widgets/button/wh_button_primary.dart';
 import '../src/widgets/button/wh_button_secondary.dart';
 import '../src/widgets/button/wh_button_tersiery.dart';
 import '../src/widgets/wh_appbar.dart';
+import '../src/widgets/wh_in_out_card.dart';
 import '../src/colors.dart';
 import 'package:zone/zone.dart';
+
+class _DummyOrder {
+  final String poNumber;
+  final String supplierName;
+  final String status;
+  final DateTime orderDate;
+ 
+  /// Dipakai saat status == 'active' atau 'completed'.
+  final int? progressCurrent;
+ 
+  /// Dipakai saat status == 'active' atau 'completed'.
+  final int? progressTotal;
+ 
+  /// Fallback: jika [progressTotal] null, WHOrderCard pakai items.length.
+  final List<Object> items;
+ 
+  const _DummyOrder({
+    required this.poNumber,
+    required this.supplierName,
+    required this.status,
+    required this.orderDate,
+    this.progressCurrent,
+    this.progressTotal,
+    this.items = const [],
+  });
+}
+ 
+// Tiga data dummy – satu per status
+final _dummyQueued = _DummyOrder(
+  poNumber: 'PO-9105-Z',
+  supplierName: 'National Trans',
+  status: 'Queued',
+  orderDate: DateTime(2026, 5, 25),
+  items: [],
+);
+ 
+final _dummyActive = _DummyOrder(
+  poNumber: 'PO-8832-A',
+  supplierName: 'Maju Jaya Logistics',
+  status: 'Active',
+  orderDate: DateTime(2026, 5, 20),
+  progressCurrent: 18,
+  progressTotal: 45,
+  items: [],
+);
+ 
+final _dummyCompleted = _DummyOrder(
+  poNumber: 'PO-7741-C',
+  supplierName: 'Sinar Mas Freight',
+  status: 'Completed',
+  orderDate: DateTime(2026, 5, 15),
+  progressCurrent: 45,
+  progressTotal: 45,
+  items: [],
+);
 
 class DesignSystemGalleryPage extends StatefulWidget {
   const DesignSystemGalleryPage({super.key});
 
   @override
-  State<DesignSystemGalleryPage> createState() => _DesignSystemGalleryPageState();
+  State<DesignSystemGalleryPage> createState() =>
+      _DesignSystemGalleryPageState();
 }
 
 class _DesignSystemGalleryPageState extends State<DesignSystemGalleryPage> {
@@ -29,9 +86,7 @@ class _DesignSystemGalleryPageState extends State<DesignSystemGalleryPage> {
 
     return Scaffold(
       backgroundColor: WHColors.background,
-      appBar: AppBar(
-        title: WHAppbar(title: 'Design System'),
-      ),
+      appBar: AppBar(title: WHAppbar(title: 'Design System')),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
@@ -44,9 +99,9 @@ class _DesignSystemGalleryPageState extends State<DesignSystemGalleryPage> {
           WhPrimaryButton(
             text: 'Done',
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Button Pressed!')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Button Pressed!')));
             },
           ),
           const SizedBox(height: 20),
@@ -55,10 +110,7 @@ class _DesignSystemGalleryPageState extends State<DesignSystemGalleryPage> {
             style: TextStyle(color: WHColors.primary1, fontSize: 12),
           ),
           const SizedBox(height: 8),
-          const WhPrimaryButton(
-            text: 'Done',
-            onPressed: null,
-          ),
+          const WhPrimaryButton(text: 'Done', onPressed: null),
           const SizedBox(height: 32),
           const SizedBox(height: 10), // Space extra di bawah
 
@@ -71,9 +123,9 @@ class _DesignSystemGalleryPageState extends State<DesignSystemGalleryPage> {
           WhSecondaryButton(
             text: 'Done',
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Button Pressed!')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Button Pressed!')));
             },
           ),
           const SizedBox(height: 20),
@@ -82,10 +134,7 @@ class _DesignSystemGalleryPageState extends State<DesignSystemGalleryPage> {
             style: TextStyle(color: WHColors.primary1, fontSize: 12),
           ),
           const SizedBox(height: 8),
-          const WhSecondaryButton(
-            text: 'Done',
-            onPressed: null,
-          ),
+          const WhSecondaryButton(text: 'Done', onPressed: null),
           const SizedBox(height: 32),
           const SizedBox(height: 10),
 
@@ -98,9 +147,9 @@ class _DesignSystemGalleryPageState extends State<DesignSystemGalleryPage> {
           WhTersieryButton(
             text: 'Done',
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Button Pressed!')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Button Pressed!')));
             },
           ),
           const SizedBox(height: 20),
@@ -109,12 +158,9 @@ class _DesignSystemGalleryPageState extends State<DesignSystemGalleryPage> {
             style: TextStyle(color: WHColors.primary1, fontSize: 12),
           ),
           const SizedBox(height: 8),
-          const WhTersieryButton(
-            text: 'Done',
-            onPressed: null,
-          ),
+          const WhTersieryButton(text: 'Done', onPressed: null),
           const SizedBox(height: 32),
-          const SizedBox(height: 10), 
+          const SizedBox(height: 10),
 
           _buildSectionTitle('Zone Management Card'),
           const Text(
@@ -122,7 +168,41 @@ class _DesignSystemGalleryPageState extends State<DesignSystemGalleryPage> {
             style: TextStyle(color: WHColors.primary1, fontSize: 12),
           ),
           const SizedBox(height: 8),
-          ZoneCard(zone: dummyZone)
+          ZoneCard(zone: dummyZone),
+
+          _buildSectionTitle('Inbound Card'),
+          const Text(
+            'Queued',
+            style: TextStyle(color: WHColors.primary1, fontSize: 12),
+          ),
+          const SizedBox(height: 8),
+          WHOrderCard(
+            purchaseOrder: _dummyQueued,
+            onTap: () {},
+          ),
+          const SizedBox(height: 16),
+
+          const Text(
+            'Active',
+            style: TextStyle(color: WHColors.primary1, fontSize: 12),
+          ),
+          const SizedBox(height: 8),
+          WHOrderCard(
+            purchaseOrder: _dummyActive,
+            onTap: () {},
+          ),
+          const SizedBox(height: 16),
+
+          const Text(
+            'Completed',
+            style: TextStyle(color: WHColors.primary1, fontSize: 12),
+          ),
+          const SizedBox(height: 8),
+          WHOrderCard(
+            purchaseOrder: _dummyCompleted,
+            onTap: null,
+          ),
+          const SizedBox(height: 32),
         ],
       ),
     );
