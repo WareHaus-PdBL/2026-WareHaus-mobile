@@ -4,6 +4,7 @@ import '../src/widgets/button/wh_button_secondary.dart';
 import '../src/widgets/button/wh_button_tersiery.dart';
 import '../src/widgets/wh_appbar.dart';
 import '../src/widgets/wh_in_out_card.dart';
+import '../src/widgets/wh_task_pick_put_card.dart';
 import '../src/colors.dart';
 import 'package:zone/zone.dart';
 
@@ -12,16 +13,16 @@ class _DummyOrder {
   final String supplierName;
   final String status;
   final DateTime orderDate;
- 
+
   /// Dipakai saat status == 'active' atau 'completed'.
   final int? progressCurrent;
- 
+
   /// Dipakai saat status == 'active' atau 'completed'.
   final int? progressTotal;
- 
+
   /// Fallback: jika [progressTotal] null, WHOrderCard pakai items.length.
   final List<Object> items;
- 
+
   const _DummyOrder({
     required this.poNumber,
     required this.supplierName,
@@ -32,7 +33,7 @@ class _DummyOrder {
     this.items = const [],
   });
 }
- 
+
 // Tiga data dummy – satu per status
 final _dummyQueued = _DummyOrder(
   poNumber: 'PO-9105-Z',
@@ -41,7 +42,7 @@ final _dummyQueued = _DummyOrder(
   orderDate: DateTime(2026, 5, 25),
   items: [],
 );
- 
+
 final _dummyActive = _DummyOrder(
   poNumber: 'PO-8832-A',
   supplierName: 'Maju Jaya Logistics',
@@ -51,7 +52,7 @@ final _dummyActive = _DummyOrder(
   progressTotal: 45,
   items: [],
 );
- 
+
 final _dummyCompleted = _DummyOrder(
   poNumber: 'PO-7741-C',
   supplierName: 'Sinar Mas Freight',
@@ -176,10 +177,7 @@ class _DesignSystemGalleryPageState extends State<DesignSystemGalleryPage> {
             style: TextStyle(color: WHColors.primary1, fontSize: 12),
           ),
           const SizedBox(height: 8),
-          WHOrderCard(
-            purchaseOrder: _dummyQueued,
-            onTap: () {},
-          ),
+          WHOrderCard(purchaseOrder: _dummyQueued, onTap: () {}),
           const SizedBox(height: 16),
 
           const Text(
@@ -187,10 +185,7 @@ class _DesignSystemGalleryPageState extends State<DesignSystemGalleryPage> {
             style: TextStyle(color: WHColors.primary1, fontSize: 12),
           ),
           const SizedBox(height: 8),
-          WHOrderCard(
-            purchaseOrder: _dummyActive,
-            onTap: () {},
-          ),
+          WHOrderCard(purchaseOrder: _dummyActive, onTap: () {}),
           const SizedBox(height: 16),
 
           const Text(
@@ -198,11 +193,21 @@ class _DesignSystemGalleryPageState extends State<DesignSystemGalleryPage> {
             style: TextStyle(color: WHColors.primary1, fontSize: 12),
           ),
           const SizedBox(height: 8),
-          WHOrderCard(
-            purchaseOrder: _dummyCompleted,
-            onTap: null,
-          ),
+          WHOrderCard(purchaseOrder: _dummyCompleted, onTap: null),
           const SizedBox(height: 32),
+
+          _buildSectionTitle('Task Card'),
+          const SizedBox(height: 8),
+          WHTaskPickPutCard(
+            data: WHTaskPickPutData(
+              location: 'ZONA A - LORONG 2 - RAK 05',
+              sku: '994-XQ-2',
+              productName: 'Heavy Duty Steel Cog Assembly V2',
+              requiredQty: 12,
+              taskType: WHTaskType.inbound, // ganti ke .outbound untuk Outbound
+            ),
+          ),
+          const SizedBox(height: 16),
         ],
       ),
     );

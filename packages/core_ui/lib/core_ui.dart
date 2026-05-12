@@ -8,3 +8,4 @@ export 'src/widgets/button/wh_button_primary.dart';
 export 'src/widgets/button/wh_button_secondary.dart';
 export 'src/widgets/button/wh_button_tersiery.dart';
 export 'src/widgets/wh_in_out_card.dart';
+export 'src/widgets/wh_task_pick_put_card.dart';
