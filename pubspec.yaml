@@ -6,6 +6,7 @@ version: 1.0.0+1
 workspace:
   - packages/core_ui
   - packages/core_services
+  - packages/feature_dashboard
 
 environment:
   sdk: ^3.8.1
@@ -19,6 +20,8 @@ dependencies:
     path: packages/core_ui
   core_services:
     path: packages/core_services
+  feature_dashboard:
+    path: packages/feature_dashboard
 
 dev_dependencies:
   flutter_test:

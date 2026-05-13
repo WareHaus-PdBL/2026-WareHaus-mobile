@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/dashboard.dart';
+import 'package:feature_dashboard/feature_dashboard.dart';
 
 void main() {
   runApp(const MyApp());
