@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/presentation/bloc/navigation_bloc.dart';
 import 'package:mobile/presentation/bloc/navigation_event.dart';
 import 'package:mobile/presentation/bloc/navigation_state.dart';
+import 'package:product/presentation/pages/product_list_page.dart';
 import 'package:zone/presentation/pages/zone_list_page.dart';
 
 class MainPage extends StatelessWidget {
@@ -17,9 +18,9 @@ class MainPage extends StatelessWidget {
           body: IndexedStack(
             index: state.currentIndex,
             children: const [
+              Center(child: Text("Dashboard Page")),
+              ProductListPage(),
               ZoneListPage(),
-              const Center(child: Text("Inventory Page")),
-              const Center(child: Text("Profile Page")),
             ],
           ),
           bottomNavigationBar: WHBottomNav(
@@ -27,16 +28,6 @@ class MainPage extends StatelessWidget {
             onTap: (index) {
               context.read<NavigationBloc>().add(ChangeTabEvent(index));
             },
-          ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerDocked,
-          floatingActionButton: FloatingActionButton(
-            backgroundColor: WHColors.primary,
-            shape: const CircleBorder(),
-            onPressed: () {
-              // Logika scanner barcode diletakkan di sini
-            },
-            child: const Icon(Icons.qr_code_scanner, color: Colors.white),
           ),
         );
       },

@@ -12,45 +12,29 @@ class WHBottomNav extends StatelessWidget {
     required this.onTap,
   });
 
-  final List<BottomNavigationBarItem> items = const [
-    BottomNavigationBarItem(
-      icon: Icon(Icons.grid_view_rounded),
-      label: 'Zones',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.person_outline_rounded),
-      label: 'Profile',
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
-      shape:
-          const CircularNotchedRectangle(), // Memberikan lengkungan untuk FAB
-      notchMargin: 8.0,
+      color: WHColors.surface,
       clipBehavior: Clip.antiAlias,
       elevation: 10,
-      child: SizedBox(
-        height: 60,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildNavItem(
-              icon: Icons.grid_view_rounded,
-              label: 'Zones',
-              index: 0,
-            ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildNavItem(
+            icon: Icons.grid_view_outlined,
+            label: 'DASHBOARD',
+            index: 0,
+          ),
 
-            const SizedBox(width: 40),
+          _buildNavItem(
+            icon: Icons.inventory_2_outlined,
+            label: 'PRODUCTS',
+            index: 1,
+          ),
 
-            _buildNavItem(
-              icon: Icons.person_outline_rounded,
-              label: 'Profile',
-              index: 1,
-            ),
-          ],
-        ),
+          _buildNavItem(icon: Icons.layers_outlined, label: 'ZONES', index: 2),
+        ],
       ),
     );
   }
@@ -68,13 +52,13 @@ class WHBottomNav extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, color: isSelected ? WHColors.primary : WHColors.grey),
+          Icon(icon, color: isSelected ? WHColors.secondary : WHColors.grey),
           Text(
             label,
             style: TextStyle(
               fontSize: 12,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              color: isSelected ? WHColors.primary : WHColors.grey,
+              color: isSelected ? WHColors.secondary : WHColors.grey,
             ),
           ),
         ],

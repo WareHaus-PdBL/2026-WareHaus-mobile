@@ -13,10 +13,10 @@ class WHSearch extends StatelessWidget {
         prefixIcon: Icon(Icons.search),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(width: 3, color: WHColors.grey),
+          borderSide: BorderSide(width: 3, color: WHColors.surface),
         ),
         filled: true,
-        fillColor: Color(0xFFD8E5E6),
+        fillColor: WHColors.surface,
       ),
       onChanged: (value) {
         // Implement search logic if needed

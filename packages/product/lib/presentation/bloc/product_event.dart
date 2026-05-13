@@ -1,0 +1,45 @@
+abstract class ProductEvent {}
+
+class GetProductsEvent extends ProductEvent {}
+
+class GetProductDetailsEvent extends ProductEvent {
+  final String id;
+
+  GetProductDetailsEvent(this.id);
+}
+
+class CreateProductEvent extends ProductEvent {
+  final String sku;
+  final String productName;
+  final String barcode;
+  final String unitOfMeasure;
+
+  CreateProductEvent({
+    required this.sku,
+    required this.productName,
+    required this.barcode,
+    required this.unitOfMeasure,
+  });
+}
+
+class UpdateProductEvent extends ProductEvent {
+  final String id;
+  final String? sku;
+  final String? productName;
+  final String? barcode;
+  final String? unitOfMeasure;
+
+  UpdateProductEvent({
+    required this.id,
+    this.sku,
+    this.productName,
+    this.barcode,
+    this.unitOfMeasure,
+  });
+}
+
+class DeleteProductEvent extends ProductEvent {
+  final String id;
+
+  DeleteProductEvent(this.id);
+}

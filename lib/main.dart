@@ -3,9 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:mobile/presentation/bloc/navigation_bloc.dart';
 import 'package:mobile/presentation/pages/main_page.dart';
+import 'package:product/presentation/bloc/product_bloc.dart';
 import 'package:zone/presentation/bloc/zone_bloc.dart';
 
 import 'injector.dart';
+import 'route_observer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,6 +24,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<NavigationBloc>(create: (context) => NavigationBloc()),
+        BlocProvider<ProductBloc>(create: (context) => getIt<ProductBloc>()),
         BlocProvider<ZoneBloc>(create: (context) => getIt<ZoneBloc>()),
       ],
       child: MaterialApp(
@@ -31,6 +34,7 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.deepPurple,
           scaffoldBackgroundColor: Colors.white,
         ),
+        navigatorObservers: [routeObserver],
         home: const MainPage(),
       ),
     );

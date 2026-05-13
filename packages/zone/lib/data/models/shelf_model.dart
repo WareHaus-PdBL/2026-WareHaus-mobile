@@ -1,41 +1,41 @@
-import 'package:zone/domain/entities/bin.dart';
+import 'package:zone/domain/entities/shelves.dart';
 
-class BinModel extends Bin {
-  BinModel({
+class ShelfModel extends Shelf {
+  ShelfModel({
     required String id,
-    required String binCode,
+    required String shelfCode,
+    required int aisle,
     required int capacity,
     required int currentVolume,
     required String qrCodePath,
-    String? zoneCode,
   }) : super(
          id: id,
-         binCode: binCode,
+         shelfCode: shelfCode,
+         aisle: aisle,
          capacity: capacity,
          currentVolume: currentVolume,
          qrCodePath: qrCodePath,
-         zoneCode: zoneCode,
        );
 
-  factory BinModel.fromJson(Map<String, dynamic> json) {
-    return BinModel(
+  factory ShelfModel.fromJson(Map<String, dynamic> json) {
+    return ShelfModel(
       id: json['id']?.toString() ?? '',
-      binCode: json['binCode'] as String? ?? '',
+      shelfCode: (json['shelfCode'] ?? json['binCode']) as String? ?? '',
+      aisle: json['aisle'] as int? ?? 0,
       capacity: json['capacity'] as int? ?? 0,
       currentVolume: json['currentVolume'] as int? ?? 0,
       qrCodePath: json['qrCodePath'] as String? ?? '',
-      zoneCode: json['zone']?['zoneCode'] as String? ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'binCode': binCode,
+      'shelfCode': shelfCode,
+      'aisle': aisle,
       'capacity': capacity,
       'currentVolume': currentVolume,
       'qrCodePath': qrCodePath,
-      'zoneCode': zoneCode,
     };
   }
 }
