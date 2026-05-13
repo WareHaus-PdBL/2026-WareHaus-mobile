@@ -10,13 +10,13 @@ class WHTypography {
   );
 
   static const TextStyle heading1 = TextStyle(
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: FontWeight.bold,
     color: WHColors.grey1,
   );
 
   static const TextStyle heading2 = TextStyle(
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: FontWeight.w600,
     color: WHColors.grey1,
   );

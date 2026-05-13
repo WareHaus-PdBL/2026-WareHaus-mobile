@@ -1,28 +1,28 @@
-class Bin {
+class Shelf {
   final String id;
-  final String binCode;
+  final String shelfCode;
+  final int aisle;
   final int capacity;
   final int currentVolume;
   final String qrCodePath;
-  final String? zoneCode;
 
-  Bin({
+  Shelf({
     required this.id,
-    required this.binCode,
+    required this.shelfCode,
+    required this.aisle,
     required this.capacity,
     required this.currentVolume,
     required this.qrCodePath,
-    this.zoneCode,
   });
 
-  factory Bin.fromJson(Map<String, dynamic> json) {
-    return Bin(
+  factory Shelf.fromJson(Map<String, dynamic> json) {
+    return Shelf(
       id: json['id']?.toString() ?? '',
-      binCode: json['binCode'] as String? ?? '',
+      shelfCode: (json['shelfCode'] ?? json['binCode']) as String? ?? '',
+      aisle: json['aisle'] as int? ?? 0,
       capacity: json['capacity'] as int? ?? 0,
       currentVolume: json['currentVolume'] as int? ?? 0,
       qrCodePath: json['qrCodePath'] as String? ?? '',
-      zoneCode: json['zone']?['zoneCode'] as String? ?? '',
     );
   }
 }

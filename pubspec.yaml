@@ -1,5 +1,5 @@
 name: mobile
-description: "A new Flutter project."
+description: "Warehouse Management System — Platform operasional gudang: inbound, put-away, picking, packing, shipping, dan utilisasi ruang gudang."
 publish_to: "none"
 version: 1.0.0+1
 
@@ -7,6 +7,7 @@ workspace:
   - packages/core_ui
   - packages/core_services
   - packages/zone
+  - packages/product
 
 environment:
   sdk: ^3.8.1
@@ -16,6 +17,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   dio: ^5.0.0
+  flutter_launcher_icons: ^0.13.1
 
   core_ui:
     path: packages/core_ui
@@ -24,6 +26,9 @@ dependencies:
   zone:
     path: packages/zone
   flutter_dotenv: ^6.0.1
+  percent_indicator: ^4.2.5
+  mobile_scanner: ^7.2.0
+  flutter_slidable: ^4.0.3
   flutter_bloc: ^9.1.1
 
 dev_dependencies:
@@ -45,3 +50,8 @@ melos:
     analyze:
       description: "Run Flutter analyzer across all workspace packages"
       run: dart run melos exec -- "flutter analyze"
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/app_icon.png"

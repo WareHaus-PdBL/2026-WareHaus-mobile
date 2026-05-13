@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../colors.dart'; 
+import '../colors.dart';
 
 class WHBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -30,7 +30,7 @@ class WHBottomNav extends StatelessWidget {
         elevation: 0,
         padding: EdgeInsets.zero,
         child: SizedBox(
-          height: 65, 
+          height: 65,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
