@@ -7,29 +7,11 @@ class ZoneApiDatasource {
 
   static const String _zonePath = '/Zone';
 
+  // Perhatikan: Tidak ada lagi try-catch berulang!
+
   Future<List<ZoneModel>> getZones() async {
     final response = await dio.get(_zonePath);
     return (response.data as List).map((e) => ZoneModel.fromJson(e)).toList();
-  }
-
-  Future<List<ZoneModel>> getZonesByAisle(
-    String zoneId,
-    int aisleNumber,
-  ) async {
-    final response = await dio.get('$_zonePath/$zoneId/$aisleNumber');
-    final data = response.data;
-
-    if (data is List) {
-      return data
-          .map((e) => ZoneModel.fromJson(e as Map<String, dynamic>))
-          .toList();
-    }
-
-    if (data is Map<String, dynamic>) {
-      return [ZoneModel.fromJson(data)];
-    }
-
-    throw Exception('Unexpected aisle response type: ${data.runtimeType}');
   }
 
   Future<ZoneModel?> getZoneById(String id) async {
@@ -41,18 +23,8 @@ class ZoneApiDatasource {
     await dio.post(_zonePath, data: zone.toJson());
   }
 
-  Future<void> updateZone({
-    required String id,
-    String? zoneName,
-    String? category,
-    String? description,
-  }) async {
-    final payload = <String, dynamic>{};
-    if (zoneName != null) payload['zoneName'] = zoneName;
-    if (category != null) payload['category'] = category;
-    if (description != null) payload['description'] = description;
-
-    await dio.put('$_zonePath/$id', data: payload);
+  Future<void> updateZone(ZoneModel zone) async {
+    await dio.put('$_zonePath/${zone.id}', data: zone.toJson());
   }
 
   Future<void> deleteZone(String id) async {

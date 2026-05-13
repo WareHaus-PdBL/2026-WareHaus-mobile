@@ -2,7 +2,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zone/domain/entities/zone.dart';
 import 'package:zone/domain/usecases/create_zone.dart';
 import 'package:zone/domain/usecases/delete_zone.dart';
-import 'package:zone/domain/usecases/get_zone_by_aisle.dart';
 import 'package:zone/domain/usecases/get_zone_details.dart';
 import 'package:zone/domain/usecases/get_zones.dart';
 import 'package:zone/domain/usecases/update_zone.dart';
@@ -11,7 +10,6 @@ import 'package:zone/presentation/bloc/zone_state.dart';
 
 class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
   final GetZones getZonesUsecase;
-  final GetZoneByAisle getZoneByAisleUsecase;
   final GetZoneDetails getZoneDetailsUsecase;
   final CreateZone createZoneUsecase;
   final UpdateZone updateZoneUsecase;
@@ -19,7 +17,6 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
 
   ZoneBloc({
     required this.getZonesUsecase,
-    required this.getZoneByAisleUsecase,
     required this.createZoneUsecase,
     required this.updateZoneUsecase,
     required this.deleteZoneUsecase,
@@ -29,18 +26,6 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
       emit(ZoneLoading());
       try {
         final zones = await getZonesUsecase();
-        emit(ZoneLoaded(zones));
-      } catch (e) {
-        emit(ZoneError(e.toString()));
-      }
-    });
-    on<GetZoneByAisleEvent>((event, emit) async {
-      emit(ZoneLoading());
-      try {
-        final zones = await getZoneByAisleUsecase(
-          event.zoneId,
-          event.aisleNumber,
-        );
         emit(ZoneLoaded(zones));
       } catch (e) {
         emit(ZoneError(e.toString()));
@@ -60,14 +45,13 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
       try {
         final zone = Zone(
           id: '',
-          zoneCode: event.zoneCode,
+          zoneCode: '',
           zoneName: event.zoneName,
-          category: event.category,
-          description: event.description ?? '',
-          totalAisle: event.totalAisle,
-          shelfPerAisle: event.shelfPerAisle,
-          capacityPerShelf: event.capacityPerShelf,
-          shelves: const [],
+          category: '',
+          totalAisles: 0,
+          totalShelves: 0,
+          shelvesCapacity: 0,
+          bins: const [],
         );
         await createZoneUsecase(zone);
         final zones = await getZonesUsecase();
@@ -79,12 +63,18 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
     on<UpdateZoneEvent>((event, emit) async {
       emit(ZoneLoading());
       try {
-        await updateZoneUsecase(
-          id: event.id,
+        final current = await getZoneDetailsUsecase(event.id);
+        final updatedZone = Zone(
+          id: current.id,
+          zoneCode: current.zoneCode,
           zoneName: event.zoneName,
-          category: event.category,
-          description: event.description,
+          category: current.category,
+          totalAisles: current.totalAisles,
+          totalShelves: current.totalShelves,
+          shelvesCapacity: current.shelvesCapacity,
+          bins: current.bins,
         );
+        await updateZoneUsecase(updatedZone);
         final zones = await getZonesUsecase();
         emit(ZoneLoaded(zones));
       } catch (e) {

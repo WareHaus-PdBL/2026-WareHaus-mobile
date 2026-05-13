@@ -1,6 +1,6 @@
 export 'data/datasources/zone_api_datasource.dart';
 export 'data/repositories/zone_repository_impl.dart';
-export 'domain/entities/shelves.dart';
+export 'domain/entities/bin.dart';
 export 'domain/entities/zone.dart';
 export 'domain/repositories/zone_repository.dart';
 export 'domain/usecases/create_zone.dart';

@@ -13,11 +13,6 @@ class ZoneRepositoryImpl implements ZoneRepository {
   }
 
   @override
-  Future<List<Zone>> getZonesByAisle(String zoneId, int aisleNumber) async {
-    return await apiDatasource.getZonesByAisle(zoneId, aisleNumber);
-  }
-
-  @override
   Future<Zone> getZoneDetails(String id) async {
     final zone = await apiDatasource.getZoneById(id);
     if (zone == null) {
@@ -28,37 +23,12 @@ class ZoneRepositoryImpl implements ZoneRepository {
 
   @override
   Future<void> createZone(Zone zone) async {
-    final model = zone is ZoneModel
-        ? zone
-        : ZoneModel(
-            id: zone.id,
-            zoneCode: zone.zoneCode,
-            zoneName: zone.zoneName,
-            category: zone.category,
-            description: zone.description,
-            totalAisle: zone.totalAisle,
-            shelfPerAisle: zone.shelfPerAisle,
-            capacityPerShelf: zone.capacityPerShelf,
-            emptyShelves: zone.emptyShelves,
-            shelves: zone.shelves,
-            aisles: zone.aisles,
-          );
-    await apiDatasource.createZone(model);
+    await apiDatasource.createZone(zone as ZoneModel);
   }
 
   @override
-  Future<void> updateZone({
-    required String id,
-    String? zoneName,
-    String? category,
-    String? description,
-  }) async {
-    await apiDatasource.updateZone(
-      id: id,
-      zoneName: zoneName,
-      category: category,
-      description: description,
-    );
+  Future<void> updateZone(Zone zone) async {
+    await apiDatasource.updateZone(zone as ZoneModel);
   }
 
   @override

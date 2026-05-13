@@ -1,35 +1,20 @@
-import 'package:zone/data/models/aisle_model.dart';
-import 'package:zone/data/models/shelf_model.dart';
-import 'package:zone/domain/entities/aisle.dart';
-import 'package:zone/domain/entities/shelves.dart';
+import 'package:zone/data/models/bin_model.dart'; // Import modelnya, bukan entity
+import 'package:zone/domain/entities/bin.dart';
 import 'package:zone/domain/entities/zone.dart';
 
 class ZoneModel extends Zone {
   ZoneModel({
-    required String id,
-    required String zoneCode,
-    required String zoneName,
-    required String category,
-    required String description,
-    required int totalAisle,
-    required int shelfPerAisle,
-    int capacityPerShelf = 0,
-    int emptyShelves = 0,
-    List<Shelf>? shelves,
-    List<Aisle>? aisles,
+    required super.id,
+    required super.zoneCode,
+    required super.zoneName,
+    required super.category,
+    required super.totalAisles,
+    required super.totalShelves,
+    required super.shelvesCapacity,
+    List<Bin>? bins,
   }) : super(
-         id: id,
-         zoneCode: zoneCode,
-         zoneName: zoneName,
-         category: category,
-         description: description,
-         totalAisle: totalAisle,
-         shelfPerAisle: shelfPerAisle,
-         capacityPerShelf: capacityPerShelf,
-          emptyShelves: emptyShelves,
-          shelves: shelves ?? [],
-          aisles: aisles ?? [],
-        );
+         bins: bins ?? [],
+       );
 
   factory ZoneModel.fromJson(Map<String, dynamic> json) {
     return ZoneModel(
@@ -37,24 +22,12 @@ class ZoneModel extends Zone {
       zoneCode: json['zoneCode'] as String? ?? '',
       zoneName: json['zoneName'] as String? ?? '',
       category: json['category'] as String? ?? '',
-      description: json['description'] as String? ?? '',
-      totalAisle: (json['totalAisle'] ?? json['totalAisles']) as int? ?? 0,
-      shelfPerAisle:
-          (json['shelfPerAisle'] ?? json['totalShelves']) as int? ?? 0,
-      capacityPerShelf: json['capacityPerShelf'] as int? ?? 0,
-      emptyShelves: json['emptyShelves'] as int? ?? 0,
-      shelves: (json['shelves'] ?? json['bins']) != null
-          ? ((json['shelves'] ?? json['bins']) as List)
-                .map(
-                  (shelf) => ShelfModel.fromJson(shelf as Map<String, dynamic>),
-                )
-                .toList()
-          : [],
-      aisles: (json['aisle'] ?? json['aisles']) != null
-          ? ((json['aisle'] ?? json['aisles']) as List)
-                .map(
-                  (aisle) => AisleModel.fromJson(aisle as Map<String, dynamic>),
-                )
+      totalAisles: json['totalAisles'] as int? ?? 0,
+      totalShelves: json['totalShelves'] as int? ?? 0,
+      shelvesCapacity: json['shelvesCapacity'] as int? ?? 0,
+      bins: json['bins'] != null
+          ? (json['bins'] as List)
+                .map((bin) => BinModel.fromJson(bin as Map<String, dynamic>))
                 .toList()
           : [],
     );
@@ -62,37 +35,21 @@ class ZoneModel extends Zone {
 
   Map<String, dynamic> toJson() {
     final map = <String, dynamic>{
+      'id': id,
       'zoneCode': zoneCode,
       'zoneName': zoneName,
       'category': category,
-      'description': description,
-      'totalAisle': totalAisle,
-      'shelfPerAisle': shelfPerAisle,
-      'capacityPerShelf': capacityPerShelf,
-      'emptyShelves': emptyShelves,
+      'totalAisles': totalAisles,
+      'totalShelves': totalShelves,
+      'shelvesCapacity': shelvesCapacity,
+      'bins': bins?.map((bin) {
+        if (bin is BinModel) return bin.toJson();
+        return {'id': bin.id};
+      }).toList(),
     };
-
-    // Only include id if not empty
     if (id.isNotEmpty) {
       map['id'] = id;
     }
-
-    // Only include shelves if not empty
-    if (shelves != null && shelves!.isNotEmpty) {
-      map['shelves'] = shelves!.map((shelf) {
-        if (shelf is ShelfModel) return shelf.toJson();
-        return {'id': shelf.id};
-      }).toList();
-    }
-
-    // Only include aisles if not empty
-    if (aisles != null && aisles!.isNotEmpty) {
-      map['aisles'] = aisles!.map((aisle) {
-        if (aisle is AisleModel) return aisle.toJson();
-        return {'aisleNumber': aisle.aisleNumber};
-      }).toList();
-    }
-
     return map;
   }
 }

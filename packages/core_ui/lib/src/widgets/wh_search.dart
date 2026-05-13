@@ -16,7 +16,7 @@ class WHSearch extends StatelessWidget {
           borderSide: BorderSide(width: 3, color: WHColors.grey5),
         ),
         filled: true,
-        fillColor: WHColors.surface,
+        fillColor: Color(0xFFD8E5E6),
       ),
       onChanged: (value) {
         // Implement search logic if needed
