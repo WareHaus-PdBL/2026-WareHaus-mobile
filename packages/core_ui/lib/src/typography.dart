@@ -6,30 +6,30 @@ class WHTypography {
   static const TextStyle title = TextStyle(
     fontSize: 28,
     fontWeight: FontWeight.bold,
-    color: WHColors.textPrimary,
+    color: WHColors.grey1,
   );
 
   static const TextStyle heading1 = TextStyle(
     fontSize: 20,
     fontWeight: FontWeight.bold,
-    color: WHColors.textPrimary,
+    color: WHColors.grey1,
   );
 
   static const TextStyle heading2 = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w600,
-    color: WHColors.textPrimary,
+    color: WHColors.grey1,
   );
 
   static const TextStyle bodyText = TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.normal,
-    color: WHColors.textPrimary,
+    color: WHColors.grey1,
   );
 
   static const TextStyle caption = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.normal,
-    color: WHColors.textSecondary,
+    color: WHColors.grey2,
   );
 }

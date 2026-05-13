@@ -161,9 +161,9 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
 
   @override
   void didPopNext() {
-    // Only fetch if this page is currently displayed (tab index 2)
+    // Only fetch if this page is currently displayed (tab index 3)
     final navigationState = context.read<NavigationBloc>().state;
-    if (navigationState.currentIndex == 2) {
+    if (navigationState.currentIndex == 3) {
       context.read<ZoneBloc>().add(GetZonesEvent());
     }
   }
@@ -218,7 +218,7 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
         if (state is ZoneLoading) {
           return buildScaffold(
             body: Center(
-              child: CircularProgressIndicator(color: WHColors.primary),
+              child: CircularProgressIndicator(color: WHColors.primary4),
             ),
           );
         } else if (state is ZoneLoaded) {

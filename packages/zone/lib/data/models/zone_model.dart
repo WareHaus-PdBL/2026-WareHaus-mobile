@@ -26,10 +26,10 @@ class ZoneModel extends Zone {
          totalAisle: totalAisle,
          shelfPerAisle: shelfPerAisle,
          capacityPerShelf: capacityPerShelf,
-         emptyShelves: emptyShelves,
-         shelves: shelves ?? [],
-         aisles: aisles ?? [],
-       );
+          emptyShelves: emptyShelves,
+          shelves: shelves ?? [],
+          aisles: aisles ?? [],
+        );
 
   factory ZoneModel.fromJson(Map<String, dynamic> json) {
     return ZoneModel(
