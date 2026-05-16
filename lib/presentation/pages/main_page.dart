@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/presentation/bloc/navigation_bloc.dart';
 import 'package:mobile/presentation/bloc/navigation_event.dart';
 import 'package:mobile/presentation/bloc/navigation_state.dart';
+import 'package:mobile/presentation/pages/dashboard_page.dart';
 import 'package:product/presentation/pages/product_list_page.dart';
 import 'package:zone/presentation/pages/zone_list_page.dart';
 
@@ -18,7 +19,7 @@ class MainPage extends StatelessWidget {
           body: IndexedStack(
             index: state.currentIndex,
             children: const [
-              Center(child: Text("Dashboard Page")),
+              DashboardPage(),
               ProductListPage(),
               ZoneListPage(),
             ],

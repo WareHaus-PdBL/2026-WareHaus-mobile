@@ -1,5 +1,6 @@
 import 'package:zone/data/datasources/zone_api_datasource.dart';
 import 'package:zone/data/models/zone_model.dart';
+import 'package:zone/domain/entities/shelf_detail.dart';
 import 'package:zone/domain/entities/zone.dart';
 import 'package:zone/domain/repositories/zone_repository.dart';
 
@@ -24,6 +25,11 @@ class ZoneRepositoryImpl implements ZoneRepository {
       throw Exception('Zone with id $id not found');
     }
     return zone;
+  }
+
+  @override
+  Future<ShelfDetail> getShelfDetails(int shelfId) async {
+    return await apiDatasource.getShelfById(shelfId);
   }
 
   @override

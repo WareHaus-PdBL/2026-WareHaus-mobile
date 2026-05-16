@@ -18,12 +18,18 @@ class ShelfModel extends Shelf {
        );
 
   factory ShelfModel.fromJson(Map<String, dynamic> json) {
+    int parseInt(dynamic v) {
+      if (v == null) return 0;
+      if (v is int) return v;
+      return int.tryParse(v.toString()) ?? 0;
+    }
+
     return ShelfModel(
       id: json['id']?.toString() ?? '',
       shelfCode: (json['shelfCode'] ?? json['binCode']) as String? ?? '',
-      aisle: json['aisle'] as int? ?? 0,
-      capacity: json['capacity'] as int? ?? 0,
-      currentVolume: json['currentVolume'] as int? ?? 0,
+      aisle: parseInt(json['aisle']),
+      capacity: parseInt(json['capacity']),
+      currentVolume: parseInt(json['currentVolume']),
       qrCodePath: json['qrCodePath'] as String? ?? '',
     );
   }

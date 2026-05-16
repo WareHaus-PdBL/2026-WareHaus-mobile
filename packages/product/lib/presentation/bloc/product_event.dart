@@ -43,3 +43,15 @@ class DeleteProductEvent extends ProductEvent {
 
   DeleteProductEvent(this.id);
 }
+
+class AddStockLocationEvent extends ProductEvent {
+  final String productId;
+  final int shelfId;
+  final int quantity;
+
+  AddStockLocationEvent({
+    required this.productId,
+    required this.shelfId,
+    required this.quantity,
+  });
+}

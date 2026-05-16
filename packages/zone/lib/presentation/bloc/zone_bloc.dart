@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zone/domain/entities/zone.dart';
 import 'package:zone/domain/usecases/create_zone.dart';
 import 'package:zone/domain/usecases/delete_zone.dart';
+import 'package:zone/domain/usecases/get_shelf_details.dart';
 import 'package:zone/domain/usecases/get_zone_by_aisle.dart';
 import 'package:zone/domain/usecases/get_zone_details.dart';
 import 'package:zone/domain/usecases/get_zones.dart';
@@ -13,6 +14,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
   final GetZones getZonesUsecase;
   final GetZoneByAisle getZoneByAisleUsecase;
   final GetZoneDetails getZoneDetailsUsecase;
+  final GetShelfDetails getShelfDetailsUsecase;
   final CreateZone createZoneUsecase;
   final UpdateZone updateZoneUsecase;
   final DeleteZone deleteZoneUsecase;
@@ -24,6 +26,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
     required this.updateZoneUsecase,
     required this.deleteZoneUsecase,
     required this.getZoneDetailsUsecase,
+    required this.getShelfDetailsUsecase,
   }) : super(ZoneInitial()) {
     on<GetZonesEvent>((event, emit) async {
       emit(ZoneLoading());
@@ -51,6 +54,17 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
       try {
         final zone = await getZoneDetailsUsecase(event.zoneId);
         emit(ZoneLoaded([zone]));
+      } catch (e) {
+        emit(ZoneError(e.toString()));
+      }
+    });
+    on<GetShelfDetailsEvent>((event, emit) async {
+      emit(ZoneLoading());
+      try {
+        final shelfDetail = await getShelfDetailsUsecase(event.shelfId);
+        emit(
+          ShelfDetailLoaded(shelfId: event.shelfId, shelfDetail: shelfDetail),
+        );
       } catch (e) {
         emit(ZoneError(e.toString()));
       }

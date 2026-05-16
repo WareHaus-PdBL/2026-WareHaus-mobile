@@ -32,7 +32,29 @@ class ZoneModel extends Zone {
        );
 
   factory ZoneModel.fromJson(Map<String, dynamic> json) {
-    return ZoneModel(
+    // Debug print
+    print('ZoneModel.fromJson: shelves = ${json['shelves']}');
+
+    // Parse shelves with proper null handling
+    List<Shelf>? parsedShelves;
+    if (json['shelves'] != null && json['shelves'] is List) {
+      print(
+        'Parsing shelves list with ${(json['shelves'] as List).length} items',
+      );
+      parsedShelves = (json['shelves'] as List)
+          .map((shelf) => ShelfModel.fromJson(shelf as Map<String, dynamic>))
+          .toList();
+      print('Parsed shelves: ${parsedShelves.length}');
+    } else if (json['bins'] != null && json['bins'] is List) {
+      print('Parsing bins list with ${(json['bins'] as List).length} items');
+      parsedShelves = (json['bins'] as List)
+          .map((shelf) => ShelfModel.fromJson(shelf as Map<String, dynamic>))
+          .toList();
+    } else {
+      print('No shelves or bins found in JSON');
+    }
+
+    final zone = ZoneModel(
       id: json['id']?.toString() ?? '',
       zoneCode: json['zoneCode'] as String? ?? '',
       zoneName: json['zoneName'] as String? ?? '',
@@ -43,13 +65,7 @@ class ZoneModel extends Zone {
           (json['shelfPerAisle'] ?? json['totalShelves']) as int? ?? 0,
       capacityPerShelf: json['capacityPerShelf'] as int? ?? 0,
       emptyShelves: json['emptyShelves'] as int? ?? 0,
-      shelves: (json['shelves'] ?? json['bins']) != null
-          ? ((json['shelves'] ?? json['bins']) as List)
-                .map(
-                  (shelf) => ShelfModel.fromJson(shelf as Map<String, dynamic>),
-                )
-                .toList()
-          : [],
+      shelves: parsedShelves ?? [],
       aisles: (json['aisle'] ?? json['aisles']) != null
           ? ((json['aisle'] ?? json['aisles']) as List)
                 .map(
@@ -58,6 +74,11 @@ class ZoneModel extends Zone {
                 .toList()
           : [],
     );
+
+    print(
+      'ZoneModel created: id=${zone.id}, totalAisle=${zone.totalAisle}, shelves.length=${zone.shelves?.length ?? 0}',
+    );
+    return zone;
   }
 
   Map<String, dynamic> toJson() {

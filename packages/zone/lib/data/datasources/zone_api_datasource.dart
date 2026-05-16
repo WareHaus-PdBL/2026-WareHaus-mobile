@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:zone/data/models/shelf_detail_model.dart';
 import 'package:zone/data/models/zone_model.dart';
 
 class ZoneApiDatasource {
@@ -6,6 +7,7 @@ class ZoneApiDatasource {
   ZoneApiDatasource(this.dio);
 
   static const String _zonePath = '/Zone';
+  static const String _shelfPath = '/zone/shelves';
 
   Future<List<ZoneModel>> getZones() async {
     final response = await dio.get(_zonePath);
@@ -35,6 +37,19 @@ class ZoneApiDatasource {
   Future<ZoneModel?> getZoneById(String id) async {
     final response = await dio.get('$_zonePath/$id');
     return ZoneModel.fromJson(response.data);
+  }
+
+  Future<ShelfDetailModel> getShelfById(int shelfId) async {
+    final response = await dio.get('$_shelfPath/$shelfId');
+    final data = response.data;
+
+    if (data is Map<String, dynamic>) {
+      return ShelfDetailModel.fromJson(data);
+    }
+
+    throw Exception(
+      'Unexpected shelf detail response type: ${data.runtimeType}',
+    );
   }
 
   Future<void> createZone(ZoneModel zone) async {

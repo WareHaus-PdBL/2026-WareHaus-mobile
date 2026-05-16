@@ -1,9 +1,11 @@
+import 'package:core_services/api/api_client.dart';
 import 'package:core_ui/core_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zone/presentation/bloc/zone_bloc.dart';
 import 'package:zone/presentation/bloc/zone_event.dart';
 import 'package:zone/presentation/bloc/zone_state.dart';
+import 'package:zone/presentation/widgets/download_qr.dart';
 import 'package:zone/presentation/widgets/zone_aisle_visualizer.dart';
 
 class ZoneAisleDetailPage extends StatefulWidget {
@@ -23,6 +25,15 @@ class ZoneAisleDetailPage extends StatefulWidget {
 }
 
 class _ZoneAisleDetailPageState extends State<ZoneAisleDetailPage> {
+  String get _downloadUrl {
+    final zoneId = int.tryParse(widget.zoneId);
+    if (zoneId == null) return '';
+
+    final base = ApiClient().dio.options.baseUrl ?? '';
+    final suffix = 'zone/qr/$zoneId/${widget.aisleNumber}';
+    return base.endsWith('/') ? '$base$suffix' : '$base/$suffix';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -58,6 +69,18 @@ class _ZoneAisleDetailPageState extends State<ZoneAisleDetailPage> {
                   style: WHTypography.caption,
                 ),
                 const SizedBox(height: 16),
+                if (_downloadUrl.isNotEmpty)
+                  SizedBox(
+                    width: double.infinity,
+                    child: DownloadQRButton(
+                      url: _downloadUrl,
+                      code:
+                          'zone-${widget.zoneCode}-aisle-${widget.aisleNumber}',
+                    ),
+                  )
+                else
+                  const Text('QR download tidak tersedia untuk aisle ini'),
+                const SizedBox(height: 16),
                 Expanded(child: _buildContent(state)),
               ],
             ),
@@ -74,34 +97,7 @@ class _ZoneAisleDetailPageState extends State<ZoneAisleDetailPage> {
       if (state.zones.isEmpty) {
         return const Center(child: Text('Aisle not found'));
       }
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          WHSearch(hintText: 'Search Shelf...'),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton(
-              onPressed: () {},
-              style: OutlinedButton.styleFrom(
-                backgroundColor: WHColors.surface,
-                side: const BorderSide(color: Colors.black),
-                foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(32),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-              child: const Text(
-                'Print QR Code All Shelf',
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(child: ZoneAisleVisualizer(zone: state.zones.first)),
-        ],
-      );
+      return Expanded(child: ZoneAisleVisualizer(zone: state.zones.first));
     } else if (state is ZoneError) {
       return Center(child: Text('Error: ${state.message}'));
     }

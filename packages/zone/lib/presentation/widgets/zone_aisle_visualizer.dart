@@ -1,6 +1,7 @@
 import 'package:core_ui/core_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:zone/presentation/pages/shelf_detail_page.dart';
 import 'package:zone/zone.dart';
 
 class ZoneAisleVisualizer extends StatelessWidget {
@@ -35,18 +36,20 @@ class ZoneAisleVisualizer extends StatelessWidget {
                   : 'Available'
             : 'N/A';
 
+        final color = WHColors.primary3;
+
         return InkWell(
           onTap: () async {
-            // await Navigator.of(context).push(
-            //   PageRouteBuilder(
-            //     pageBuilder: (_, _, _) => ZoneAisleDetailPage(
-            //       zoneId: zone.id,
-            //       shelfNumber: shelf?.shelfNumber ?? index + 1,
-            //     ),
-            //     transitionDuration: Duration.zero,
-            //     reverseTransitionDuration: Duration.zero,
-            //   ),
-            // );
+            if (shelf == null) return;
+            final shelfId = int.tryParse(shelf.id);
+            if (shelfId == null) return;
+            await Navigator.of(
+              context,
+            ).push(
+              MaterialPageRoute(
+                builder: (_) => ShelfDetailPage(shelfId: shelfId),
+              ),
+            );
           },
           child: Container(
             margin: const EdgeInsets.symmetric(vertical: 4),
@@ -76,8 +79,8 @@ class ZoneAisleVisualizer extends StatelessWidget {
                   radius: 15.0,
                   lineWidth: 3.5,
                   percent: percent,
-                  progressColor: WHColors.secondary,
-                  backgroundColor: WHColors.secondary.withOpacity(0.3),
+                  progressColor: color,
+                  backgroundColor: color.withOpacity(0.3),
                   circularStrokeCap: CircularStrokeCap.round,
                   animation: true,
                 ),

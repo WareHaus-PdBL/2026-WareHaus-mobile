@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:product/presentation/bloc/product_bloc.dart';
 import 'package:product/presentation/bloc/product_event.dart';
 import 'package:product/presentation/bloc/product_state.dart';
+import 'package:product/presentation/pages/add_stock.dart';
 import 'package:product/presentation/widgets/product_card.dart';
 import 'package:product/presentation/widgets/shelf_card.dart';
 
@@ -88,13 +89,19 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       onPressed: () {
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(
-                        //     builder: (context) =>
-                        //         AddStockPage(productId: product.id),
-                        //   ),
-                        // );
+                        Navigator.push<bool>(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                AddStockPage(product: product),
+                          ),
+                        ).then((isChanged) {
+                          if ((isChanged ?? false) && context.mounted) {
+                            context.read<ProductBloc>().add(
+                              GetProductDetailsEvent(widget.productId),
+                            );
+                          }
+                        });
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

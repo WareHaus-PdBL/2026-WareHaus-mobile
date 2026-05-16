@@ -15,6 +15,12 @@ class GetZoneDetailsEvent extends ZoneEvent {
   GetZoneDetailsEvent({required this.zoneId});
 }
 
+class GetShelfDetailsEvent extends ZoneEvent {
+  final int shelfId;
+
+  GetShelfDetailsEvent({required this.shelfId});
+}
+
 class CreateZoneEvent extends ZoneEvent {
   final String zoneName;
   final String zoneCode;

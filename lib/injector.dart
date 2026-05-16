@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:product/data/datasources/product_api_datasource.dart';
 import 'package:product/data/repositories/product_repository_impl.dart';
+import 'package:product/domain/usecases/add_stock_location.dart';
 import 'package:product/domain/usecases/create_product.dart';
 import 'package:product/domain/usecases/delete_product.dart';
 import 'package:product/domain/usecases/get_product_detail.dart';
@@ -43,6 +44,9 @@ void setupInjector() {
   getIt.registerLazySingleton(
     () => GetZoneDetails(getIt<ZoneRepositoryImpl>()),
   );
+  getIt.registerLazySingleton(
+    () => GetShelfDetails(getIt<ZoneRepositoryImpl>()),
+  );
   getIt.registerLazySingleton(() => CreateZone(getIt<ZoneRepositoryImpl>()));
   getIt.registerLazySingleton(() => UpdateZone(getIt<ZoneRepositoryImpl>()));
   getIt.registerLazySingleton(() => DeleteZone(getIt<ZoneRepositoryImpl>()));
@@ -63,6 +67,9 @@ void setupInjector() {
   getIt.registerLazySingleton(
     () => DeleteProduct(getIt<ProductRepositoryImpl>()),
   );
+  getIt.registerLazySingleton(
+    () => AddStockLocation(getIt<ProductRepositoryImpl>()),
+  );
 
   // ZoneBloc Factory
   getIt.registerFactory(
@@ -70,6 +77,7 @@ void setupInjector() {
       getZonesUsecase: getIt<GetZones>(),
       getZoneByAisleUsecase: getIt<GetZoneByAisle>(),
       getZoneDetailsUsecase: getIt<GetZoneDetails>(),
+      getShelfDetailsUsecase: getIt<GetShelfDetails>(),
       createZoneUsecase: getIt<CreateZone>(),
       updateZoneUsecase: getIt<UpdateZone>(),
       deleteZoneUsecase: getIt<DeleteZone>(),
@@ -83,6 +91,7 @@ void setupInjector() {
       createProductUsecase: getIt<CreateProduct>(),
       updateProductUsecase: getIt<UpdateProduct>(),
       deleteProductUsecase: getIt<DeleteProduct>(),
+      addStockLocationUsecase: getIt<AddStockLocation>(),
     ),
   );
 }

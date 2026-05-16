@@ -22,22 +22,20 @@ class ZoneCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return RepaintBoundary(
       child: Slidable(
+        key: ValueKey(zone.id),
+        groupTag: 'zone-list',
         endActionPane: ActionPane(
           motion: const ScrollMotion(),
           children: [
             SlidableAction(
-              onPressed: (context) {
-                onEdit?.call();
-              },
+              onPressed: (context) => onEdit?.call(),
               backgroundColor: WHColors.primary3,
               foregroundColor: Colors.white,
               icon: Icons.edit,
               label: 'Edit',
             ),
             SlidableAction(
-              onPressed: (context) {
-                onDelete?.call();
-              },
+              onPressed: (context) => onDelete?.call(),
               backgroundColor: WHColors.error2,
               foregroundColor: Colors.white,
               icon: Icons.delete,

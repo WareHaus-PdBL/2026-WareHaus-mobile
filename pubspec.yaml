@@ -17,7 +17,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.8
   dio: ^5.0.0
-  flutter_launcher_icons: ^0.13.1
+  flutter_launcher_icons: ^0.14.4
 
   core_ui:
     path: packages/core_ui
@@ -25,10 +25,14 @@ dependencies:
     path: packages/core_services
   zone:
     path: packages/zone
-  flutter_dotenv: ^6.0.1
+
   percent_indicator: ^4.2.5
   mobile_scanner: ^7.2.0
   flutter_slidable: ^4.0.3
+
+  gal: ^2.3.2
+  path_provider: ^2.1.5
+  flutter_dotenv: ^6.0.1
   melos: ^7.5.1
   flutter_bloc: ^8.1.2
   get_it: ^9.2.1

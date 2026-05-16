@@ -14,16 +14,30 @@ class ZoneVisualizer extends StatelessWidget {
     return ListView.builder(
       itemCount: zone.totalAisle,
       itemBuilder: (context, index) {
-        final aisle = zone.aisles != null && index < zone.aisles!.length
-            ? zone.aisles![index]
-            : null;
+        final aisleNumber = index + 1;
 
-        final capacity = aisle?.capacity ?? 0;
-        final occupiedCapacity = aisle?.occupiedCapacity ?? 0;
-        final totalShelves = aisle?.totalShelves ?? 0;
-        final percent = capacity > 0
-            ? (occupiedCapacity / capacity).clamp(0.0, 1.0)
+        // Calculate aisle data from shelves
+        final aisleShelves =
+            zone.shelves
+                ?.where((shelf) => shelf.aisle == aisleNumber)
+                .toList() ??
+            [];
+
+        final totalShelves = aisleShelves.length;
+        final totalCapacity = aisleShelves.fold<int>(
+          0,
+          (sum, shelf) => sum + shelf.capacity,
+        );
+        final occupiedCapacity = aisleShelves.fold<int>(
+          0,
+          (sum, shelf) => sum + shelf.currentVolume,
+        );
+
+        final percent = totalCapacity > 0
+            ? (occupiedCapacity / totalCapacity).clamp(0.0, 1.0)
             : 0.0;
+
+        final color = WHColors.primary3;
 
         return InkWell(
           onTap: () async {
@@ -32,7 +46,7 @@ class ZoneVisualizer extends StatelessWidget {
                 pageBuilder: (_, _, _) => ZoneAisleDetailPage(
                   zoneId: zone.id,
                   zoneCode: zone.zoneCode,
-                  aisleNumber: aisle?.aisleNumber ?? index + 1,
+                  aisleNumber: aisleNumber,
                 ),
                 transitionDuration: Duration.zero,
                 reverseTransitionDuration: Duration.zero,
@@ -54,18 +68,21 @@ class ZoneVisualizer extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Aisle ${index + 1 > 9 ? index + 1 : '0${index + 1}'}',
+                      'Aisle ${aisleNumber > 9 ? aisleNumber : '0$aisleNumber'}',
                       style: WHTypography.heading1,
                     ),
-                    Text('$totalShelves shelves', style: WHTypography.caption),
+                    Text(
+                      '$totalShelves shelves | ${occupiedCapacity.toString()}/${totalCapacity.toString()} cap | ${(aisleShelves.length)} items',
+                      style: WHTypography.caption,
+                    ),
                   ],
                 ),
                 CircularPercentIndicator(
                   radius: 15.0,
                   lineWidth: 3.5,
                   percent: percent,
-                  progressColor: Colors.green,
-                  backgroundColor: Colors.green.shade100,
+                  progressColor: color,
+                  backgroundColor: color.withOpacity(0.3),
                   circularStrokeCap: CircularStrokeCap.round,
                   animation: true,
                 ),

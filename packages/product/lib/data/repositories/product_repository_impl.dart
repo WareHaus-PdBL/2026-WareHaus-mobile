@@ -1,6 +1,8 @@
 import 'package:product/data/datasources/product_api_datasource.dart';
 import 'package:product/data/models/product_model.dart';
+import 'package:product/data/models/stock_location_input_model.dart';
 import 'package:product/domain/entities/product.dart';
+import 'package:product/domain/entities/stock_location_input.dart';
 import 'package:product/domain/repositories/product_repository.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
@@ -54,5 +56,15 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<void> deleteProduct(String id) async {
     await apiDatasource.deleteProduct(id);
+  }
+
+  @override
+  Future<void> addStockLocation(StockLocationInput input) async {
+    final model = StockLocationInputModel(
+      productId: input.productId,
+      shelfId: input.shelfId,
+      quantity: input.quantity,
+    );
+    await apiDatasource.addStockLocation(model);
   }
 }

@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:product/domain/entities/product.dart';
+import 'package:product/domain/entities/stock_location_input.dart';
+import 'package:product/domain/usecases/add_stock_location.dart';
 import 'package:product/domain/usecases/create_product.dart';
 import 'package:product/domain/usecases/delete_product.dart';
 import 'package:product/domain/usecases/get_product_detail.dart';
@@ -14,6 +16,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   final CreateProduct createProductUsecase;
   final UpdateProduct updateProductUsecase;
   final DeleteProduct deleteProductUsecase;
+  final AddStockLocation addStockLocationUsecase;
 
   ProductBloc({
     required this.getProductsUsecase,
@@ -21,6 +24,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     required this.createProductUsecase,
     required this.updateProductUsecase,
     required this.deleteProductUsecase,
+    required this.addStockLocationUsecase,
   }) : super(ProductInitial()) {
     on<GetProductsEvent>((event, emit) async {
       emit(ProductLoading());
@@ -63,6 +67,22 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       try {
         await deleteProductUsecase(event.id);
         add(GetProductsEvent());
+      } catch (e) {
+        emit(ProductError(e.toString()));
+      }
+    });
+    on<AddStockLocationEvent>((event, emit) async {
+      emit(ProductLoading());
+      try {
+        await addStockLocationUsecase(
+          StockLocationInput(
+            productId: event.productId,
+            shelfId: event.shelfId,
+            quantity: event.quantity,
+          ),
+        );
+        final product = await getProductDetailUsecase(event.productId);
+        emit(ProductDetailLoaded(product));
       } catch (e) {
         emit(ProductError(e.toString()));
       }
