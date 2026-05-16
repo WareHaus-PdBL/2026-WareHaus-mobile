@@ -31,6 +31,7 @@ class ProductRepositoryImpl implements ProductRepository {
             productName: product.productName,
             barcode: product.barcode,
             unitOfMeasure: product.unitOfMeasure,
+            currentStock: product.currentStock,
             stocks: product.stocks,
           );
     await apiDatasource.createProduct(model);
@@ -46,6 +47,7 @@ class ProductRepositoryImpl implements ProductRepository {
             productName: product.productName,
             barcode: product.barcode,
             unitOfMeasure: product.unitOfMeasure,
+            currentStock: product.currentStock,
             stocks: product.stocks,
           );
     await apiDatasource.updateProduct(model);
@@ -54,5 +56,16 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<void> deleteProduct(String id) async {
     await apiDatasource.deleteProduct(id);
+  }
+
+  @override
+  Future<void> deleteProductStockLocation({
+    required String productId,
+    required int shelfId,
+  }) async {
+    await apiDatasource.deleteProductStockLocation(
+      productId: productId,
+      shelfId: shelfId,
+    );
   }
 }

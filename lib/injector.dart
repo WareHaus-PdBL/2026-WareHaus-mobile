@@ -5,6 +5,7 @@ import 'package:product/data/datasources/product_api_datasource.dart';
 import 'package:product/data/repositories/product_repository_impl.dart';
 import 'package:product/domain/usecases/create_product.dart';
 import 'package:product/domain/usecases/delete_product.dart';
+import 'package:product/domain/usecases/delete_product_stock_location.dart';
 import 'package:product/domain/usecases/get_product_detail.dart';
 import 'package:product/domain/usecases/get_products.dart';
 import 'package:product/domain/usecases/update_product.dart';
@@ -63,6 +64,9 @@ void setupInjector() {
   getIt.registerLazySingleton(
     () => DeleteProduct(getIt<ProductRepositoryImpl>()),
   );
+  getIt.registerLazySingleton(
+    () => DeleteProductStockLocation(getIt<ProductRepositoryImpl>()),
+  );
 
   // ZoneBloc Factory
   getIt.registerFactory(
@@ -83,6 +87,7 @@ void setupInjector() {
       createProductUsecase: getIt<CreateProduct>(),
       updateProductUsecase: getIt<UpdateProduct>(),
       deleteProductUsecase: getIt<DeleteProduct>(),
+      deleteProductStockLocationUsecase: getIt<DeleteProductStockLocation>(),
     ),
   );
 }

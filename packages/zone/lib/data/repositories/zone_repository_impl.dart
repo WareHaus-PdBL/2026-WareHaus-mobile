@@ -9,7 +9,14 @@ class ZoneRepositoryImpl implements ZoneRepository {
 
   @override
   Future<List<Zone>> getZones() async {
-    return await apiDatasource.getZones();
+    final zones = await apiDatasource.getZones();
+    final detailedZones = await Future.wait(
+      zones.map((zone) async {
+        final detailedZone = await apiDatasource.getZoneById(zone.id);
+        return detailedZone ?? zone;
+      }),
+    );
+    return detailedZones;
   }
 
   @override

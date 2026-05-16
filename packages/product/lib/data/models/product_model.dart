@@ -9,6 +9,7 @@ class ProductModel extends Product {
     required String productName,
     required String barcode,
     required String unitOfMeasure,
+    int currentStock = 0,
     List<Stock>? stocks,
   }) : super(
          id: id,
@@ -16,6 +17,7 @@ class ProductModel extends Product {
          productName: productName,
          barcode: barcode,
          unitOfMeasure: unitOfMeasure,
+         currentStock: currentStock,
          stocks: stocks ?? [],
        );
 
@@ -26,6 +28,7 @@ class ProductModel extends Product {
       productName: json['productName'] as String? ?? '',
       barcode: json['barcode'] as String? ?? '',
       unitOfMeasure: json['unitOfMeasure'] as String? ?? '',
+      currentStock: json['currentStock'] as int? ?? 0,
       stocks: (json['stock'] ?? json['stocks']) != null
           ? ((json['stock'] ?? json['stocks']) as List)
                 .map(

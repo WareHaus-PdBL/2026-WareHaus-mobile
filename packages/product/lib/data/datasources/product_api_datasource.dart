@@ -30,4 +30,11 @@ class ProductApiDatasource {
   Future<void> deleteProduct(String id) async {
     await dio.delete('$_productPath/$id');
   }
+
+  Future<void> deleteProductStockLocation({
+    required String productId,
+    required int shelfId,
+  }) async {
+    await dio.delete('$_productPath/$productId/stock-locations/$shelfId');
+  }
 }

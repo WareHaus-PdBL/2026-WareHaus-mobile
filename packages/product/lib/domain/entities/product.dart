@@ -6,6 +6,7 @@ class Product {
   final String productName;
   final String barcode;
   final String unitOfMeasure;
+  final int currentStock;
   final List<Stock>? stocks;
 
   Product({
@@ -14,6 +15,7 @@ class Product {
     required this.productName,
     required this.barcode,
     required this.unitOfMeasure,
+    this.currentStock = 0,
     this.stocks,
   });
 
@@ -24,6 +26,7 @@ class Product {
       productName: json['productName'] as String? ?? '',
       barcode: json['barcode'] as String? ?? '',
       unitOfMeasure: json['unitOfMeasure'] as String? ?? '',
+      currentStock: json['currentStock'] as int? ?? 0,
       stocks: (json['stock'] ?? json['stocks']) != null
           ? ((json['stock'] ?? json['stocks']) as List)
                 .map((stock) => Stock.fromJson(stock as Map<String, dynamic>))

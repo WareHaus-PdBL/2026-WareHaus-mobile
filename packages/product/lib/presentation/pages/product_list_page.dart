@@ -18,6 +18,9 @@ class ProductListPage extends StatefulWidget {
 }
 
 class _ProductListPageState extends State<ProductListPage> with RouteAware {
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
@@ -37,6 +40,7 @@ class _ProductListPageState extends State<ProductListPage> with RouteAware {
 
   @override
   void dispose() {
+    _searchController.dispose();
     routeObserver.unsubscribe(this);
     super.dispose();
   }
@@ -62,12 +66,24 @@ class _ProductListPageState extends State<ProductListPage> with RouteAware {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            WHSearch(hintText: 'Search products'),
+            WHSearch(
+              hintText: 'Search products',
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+            ),
             const SizedBox(height: 16),
             Expanded(
               child: BlocBuilder<ProductBloc, ProductState>(
                 builder: (context, state) {
                   if (state is ProductLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (state is ProductDetailLoaded || state is ProductInitial) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
@@ -83,35 +99,86 @@ class _ProductListPageState extends State<ProductListPage> with RouteAware {
 
                   if (state is ProductLoaded) {
                     if (state.products.isEmpty) {
-                      return const Center(
-                        child: Text(
-                          'No products found',
-                          style: WHTypography.bodyText,
+                      // 1. Bungkus Empty State agar tetap bisa ditarik (pull-to-refresh)
+                      return WHRefresh(
+                        onRefresh: () async {
+                          context.read<ProductBloc>().add(GetProductsEvent());
+                        },
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: SizedBox(
+                            // Memastikan EmptyState berada di tengah layar
+                            height: MediaQuery.of(context).size.height * 0.6,
+                            child: const WHEmptyState(
+                              message:
+                                  "No products available.\nTap + to add a new product.",
+                            ),
+                          ),
                         ),
                       );
                     }
 
-                    return ListView.builder(
-                      itemCount: state.products.length,
-                      itemBuilder: (context, index) {
-                        final product = state.products[index];
-                        return ProductCard(
-                          product: product,
-                          onView: () async {
-                            await Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    ProductDetailPage(productId: product.id),
-                              ),
-                            );
-                            if (!mounted) return;
-                            context.read<ProductBloc>().add(GetProductsEvent());
-                          },
-                        );
+                    // 2. Bungkus ListView.builder dengan WHRefresh
+                    final query = _searchQuery.trim().toLowerCase();
+                    final filteredProducts = query.isEmpty
+                        ? state.products
+                        : state.products
+                              .where(
+                                (product) =>
+                                    product.productName.toLowerCase().contains(
+                                      query,
+                                    ) ||
+                                    product.sku.toLowerCase().contains(query),
+                              )
+                              .toList();
+
+                    if (filteredProducts.isEmpty) {
+                      return WHRefresh(
+                        onRefresh: () async {
+                          context.read<ProductBloc>().add(GetProductsEvent());
+                        },
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.6,
+                            child: const WHEmptyState(
+                              message: 'No products match your search.',
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return WHRefresh(
+                      onRefresh: () async {
+                        // Trigger event bloc untuk mengambil data ulang
+                        context.read<ProductBloc>().add(GetProductsEvent());
                       },
+                      child: ListView.builder(
+                        // Tambahkan physics ini agar list selalu bisa ditarik meskipun itemnya sedikit
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: filteredProducts.length,
+                        itemBuilder: (context, index) {
+                          final product = filteredProducts[index];
+                          return ProductCard(
+                            product: product,
+                            onView: () async {
+                              await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      ProductDetailPage(productId: product.id),
+                                ),
+                              );
+                              if (!mounted) return;
+                              context.read<ProductBloc>().add(
+                                GetProductsEvent(),
+                              );
+                            },
+                          );
+                        },
+                      ),
                     );
                   }
-
                   return const SizedBox.shrink();
                 },
               ),

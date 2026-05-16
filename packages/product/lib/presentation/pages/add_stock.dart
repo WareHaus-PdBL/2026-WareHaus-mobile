@@ -7,7 +7,7 @@ class AddStock extends StatefulWidget {
   State<AddStock> createState() => _AddStockState();
 }
 
-class _AddStockState extends State<AddStock> {
+class _AddStockState extends State<AddStock> {                                    
   @override
   Widget build(BuildContext context) {
     return const Placeholder();

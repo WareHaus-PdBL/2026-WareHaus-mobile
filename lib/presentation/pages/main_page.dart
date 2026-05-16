@@ -18,7 +18,7 @@ class MainPage extends StatelessWidget {
           body: IndexedStack(
             index: state.currentIndex,
             children: const [
-              DesignSystemGalleryPage(),
+              Center(child: Text("Flows Page")),
               ProductListPage(),
               Center(child: Text("Flows Page")),
               ZoneListPage(),
