@@ -194,6 +194,7 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
                     ],
                   ),
                   const SizedBox(height: 16),
+                  const WHSearch(hintText: "Search zones..."),
                   Expanded(child: body),
                 ],
               ),
@@ -223,61 +224,73 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
           );
         } else if (state is ZoneLoaded) {
           return buildScaffold(
-            body: Column(
-              children: [
-                const WHSearch(hintText: "Search zones..."),
-                const SizedBox(height: 16),
-                Expanded(
-                  child: ListView.separated(
-                    key: const PageStorageKey('zone_list_key'),
-                    cacheExtent: 588,
-                    addAutomaticKeepAlives: false,
-                    addRepaintBoundaries: true,
-                    separatorBuilder: (context, index) =>
-                        const SizedBox(height: 16),
-                    itemCount: state.zones.length,
-                    itemBuilder: (context, index) {
-                      return ZoneCard(
-                        zone: state.zones[index],
-                        onEdit: () => _showEditZoneDialog(state.zones[index]),
-                        onDelete: () => _confirmDeleteZone(state.zones[index]),
-                        onTap: () async {
-                          final navigator = Navigator.of(context);
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (ctx) => Center(
-                              child: CircularProgressIndicator(
-                                color: WHColors.primary,
-                              ),
-                            ),
-                          );
-                          final changed = await Navigator.of(context)
-                              .push<bool>(
-                                PageRouteBuilder(
-                                  pageBuilder: (_, _, _) =>
-                                      ZoneDetailPage(zone: state.zones[index]),
-                                  transitionDuration: Duration.zero,
-                                  reverseTransitionDuration: Duration.zero,
-                                ),
-                              );
-                          // Pop loading dialog
-                          if (!mounted) {
-                            return;
-                          }
-                          if (navigator.canPop()) {
-                            navigator.pop();
-                          }
-                          if (changed == true) {
-                            context.read<ZoneBloc>().add(GetZonesEvent());
-                          }
-                        },
-                      );
-                    },
+            body: state.zones.isEmpty
+                ? const Center(
+                    child: Text(
+                      'No zones available. Tap the + button to create one.',
+                      style: WHTypography.bodyText,
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                : Column(
+                    children: [
+                      const SizedBox(height: 16),
+                      Expanded(
+                        child: ListView.separated(
+                          key: const PageStorageKey('zone_list_key'),
+                          cacheExtent: 588,
+                          addAutomaticKeepAlives: false,
+                          addRepaintBoundaries: true,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 16),
+                          itemCount: state.zones.length,
+                          itemBuilder: (context, index) {
+                            return ZoneCard(
+                              zone: state.zones[index],
+                              onEdit: () =>
+                                  _showEditZoneDialog(state.zones[index]),
+                              onDelete: () =>
+                                  _confirmDeleteZone(state.zones[index]),
+                              onTap: () async {
+                                final navigator = Navigator.of(context);
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (ctx) => Center(
+                                    child: CircularProgressIndicator(
+                                      color: WHColors.primary,
+                                    ),
+                                  ),
+                                );
+                                final changed = await Navigator.of(context)
+                                    .push<bool>(
+                                      PageRouteBuilder(
+                                        pageBuilder: (_, _, _) =>
+                                            ZoneDetailPage(
+                                              zone: state.zones[index],
+                                            ),
+                                        transitionDuration: Duration.zero,
+                                        reverseTransitionDuration:
+                                            Duration.zero,
+                                      ),
+                                    );
+                                // Pop loading dialog
+                                if (!mounted) {
+                                  return;
+                                }
+                                if (navigator.canPop()) {
+                                  navigator.pop();
+                                }
+                                if (changed == true) {
+                                  context.read<ZoneBloc>().add(GetZonesEvent());
+                                }
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
           );
         } else if (state is ZoneError) {
           return buildScaffold(
