@@ -2,20 +2,13 @@ import 'package:zone/domain/entities/shelves.dart';
 
 class ShelfModel extends Shelf {
   ShelfModel({
-    required String id,
-    required String shelfCode,
-    required int aisle,
-    required int capacity,
-    required int currentVolume,
-    required String qrCodePath,
-  }) : super(
-         id: id,
-         shelfCode: shelfCode,
-         aisle: aisle,
-         capacity: capacity,
-         currentVolume: currentVolume,
-         qrCodePath: qrCodePath,
-       );
+    required super.id,
+    required super.shelfCode,
+    required super.aisle,
+    required super.capacity,
+    required super.currentVolume,
+    required super.qrCodePath,
+  });
 
   factory ShelfModel.fromJson(Map<String, dynamic> json) {
     return ShelfModel(

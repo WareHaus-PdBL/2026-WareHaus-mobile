@@ -5,7 +5,10 @@ import 'package:product/domain/entities/stock.dart';
 import 'package:product/presentation/bloc/product_bloc.dart';
 import 'package:product/presentation/bloc/product_event.dart';
 import 'package:product/presentation/bloc/product_state.dart';
+import 'package:product/presentation/pages/add_stock.dart';
 import 'package:product/presentation/widgets/product_edit_dialog.dart';
+import 'package:product/presentation/widgets/stock_edit_dialog.dart';
+import 'package:product/presentation/widgets/move_stock_dialog.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final String productId;
@@ -80,9 +83,8 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
     );
 
     if (shouldDelete == true && mounted) {
-      context.read<ProductBloc>().add(
-        DeleteProductStockLocationEvent(productId: productId, shelfId: shelfId),
-      );
+      // Reload product details after delete
+      context.read<ProductBloc>().add(GetProductDetailsEvent(productId));
     }
   }
 
@@ -146,7 +148,23 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               const SizedBox(width: 10),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final result = await showStockEditDialog(
+                      context,
+                      initialQuantity: stock.quantity,
+                      shelfCode: stock.shelfCode ?? 'Unknown',
+                    );
+
+                    if (result != null && mounted) {
+                      context.read<ProductBloc>().add(
+                        UpdateStockLocationEvent(
+                          productId: productId,
+                          shelfId: stock.shelfId,
+                          quantity: result.quantity,
+                        ),
+                      );
+                    }
+                  },
                   icon: const Icon(
                     Icons.edit_outlined,
                     size: 16,
@@ -170,7 +188,19 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
               const SizedBox(width: 10),
               Expanded(
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: () async {
+                    final result = await showMoveStockDialog(
+                      context,
+                      fromShelfId: stock.shelfId,
+                      fromShelfCode: stock.shelfCode ?? 'Unknown',
+                      currentQuantity: stock.quantity,
+                      productId: productId,
+                    );
+
+                    if (result != null && mounted) {
+                      // Move handled in dialog via QR scanner + bloc
+                    }
+                  },
                   icon: const Icon(
                     Icons.edit_outlined,
                     size: 16,
@@ -326,34 +356,6 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                             children: [
                               Expanded(
                                 child: OutlinedButton.icon(
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                    Icons.print_outlined,
-                                    size: 16,
-                                    color: WHColors.secondary3,
-                                  ),
-                                  label: Text(
-                                    'Print',
-                                    style: WHTypography.bodyText.copyWith(
-                                      color: WHColors.secondary3,
-                                    ),
-                                  ),
-                                  style: OutlinedButton.styleFrom(
-                                    side: const BorderSide(
-                                      color: WHColors.secondary4,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 10,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: OutlinedButton.icon(
                                   onPressed: () async {
                                     final result = await showProductEditDialog(
                                       context,
@@ -475,7 +477,20 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          final product =
+                              (context.read<ProductBloc>().state
+                                      as ProductDetailLoaded)
+                                  .product;
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => BlocProvider.value(
+                                value: context.read<ProductBloc>(),
+                                child: AddStockPage(product: product),
+                              ),
+                            ),
+                          );
+                        },
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(color: WHColors.grey4),
                           padding: const EdgeInsets.symmetric(vertical: 12),

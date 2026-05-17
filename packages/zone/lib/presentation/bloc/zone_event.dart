@@ -54,3 +54,9 @@ class DeleteZoneEvent extends ZoneEvent {
 
   DeleteZoneEvent(this.id);
 }
+
+class GetShelfDetailsEvent extends ZoneEvent {
+  final int shelfId;
+
+  GetShelfDetailsEvent({required this.shelfId});
+}

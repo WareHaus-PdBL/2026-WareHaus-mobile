@@ -1,6 +1,11 @@
 export 'domain/entities/product.dart';
+export 'domain/entities/stock_location_input.dart';
 export 'domain/repositories/product_repository.dart';
 export 'presentation/bloc/product_bloc.dart';
 export 'presentation/bloc/product_event.dart';
 export 'presentation/bloc/product_state.dart';
 export 'presentation/pages/product_list_page.dart';
+export 'presentation/widgets/product_card.dart';
+export 'presentation/widgets/stock_edit_dialog.dart';
+export 'presentation/widgets/move_stock_dialog.dart';
+export 'presentation/pages/product_detail_page.dart';

@@ -2,36 +2,21 @@ import 'package:product/domain/entities/stock.dart';
 
 class StockModel extends Stock {
   StockModel({
-    required String id,
-    required int shelfId,
-    required String productId,
-    required int quantity,
-    String? shelfCode,
-    int? zoneId,
-    String? zoneCode,
-    String? zoneName,
-    int? aisle,
-    String? locationName,
-    int? shelfCapacity,
-    int? shelfCurrentVolume,
-    int? shelfAvailableCapacity,
-    String? qrCodePath,
-  }) : super(
-         id: id,
-         shelfId: shelfId,
-         productId: productId,
-         quantity: quantity,
-         shelfCode: shelfCode,
-         zoneId: zoneId,
-         zoneCode: zoneCode,
-         zoneName: zoneName,
-         aisle: aisle,
-         locationName: locationName,
-         shelfCapacity: shelfCapacity,
-         shelfCurrentVolume: shelfCurrentVolume,
-         shelfAvailableCapacity: shelfAvailableCapacity,
-         qrCodePath: qrCodePath,
-       );
+    required super.id,
+    required super.shelfId,
+    required super.productId,
+    required super.quantity,
+    super.shelfCode,
+    super.zoneId,
+    super.zoneCode,
+    super.zoneName,
+    super.aisle,
+    super.locationName,
+    super.shelfCapacity,
+    super.shelfCurrentVolume,
+    super.shelfAvailableCapacity,
+    super.qrCodePath,
+  });
 
   factory StockModel.fromJson(Map<String, dynamic> json) {
     return StockModel(

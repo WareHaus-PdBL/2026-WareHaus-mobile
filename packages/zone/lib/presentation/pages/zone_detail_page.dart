@@ -23,13 +23,23 @@ class _ZoneDetailPageState extends State<ZoneDetailPage> {
   @override
   void initState() {
     super.initState();
-    // Only fetch if zone object not provided
-    if (widget.zone == null && widget.zoneId != null) {
+    final zoneId = widget.zone?.id ?? widget.zoneId;
+    final needsDetailsFetch =
+        widget.zone == null ||
+        widget.zone?.shelves == null ||
+        widget.zone!.shelves!.isEmpty;
+
+    if (zoneId != null && needsDetailsFetch) {
       Future.microtask(() {
-        context.read<ZoneBloc>().add(
-          GetZoneDetailsEvent(zoneId: widget.zoneId!),
-        );
+        context.read<ZoneBloc>().add(GetZoneDetailsEvent(zoneId: zoneId));
       });
+    }
+  }
+
+  void _loadZoneDetails() {
+    final zoneId = widget.zone?.id ?? widget.zoneId;
+    if (zoneId != null) {
+      context.read<ZoneBloc>().add(GetZoneDetailsEvent(zoneId: zoneId));
     }
   }
 
@@ -63,22 +73,30 @@ class _ZoneDetailPageState extends State<ZoneDetailPage> {
 
     return BlocBuilder<ZoneBloc, ZoneState>(
       builder: (context, state) {
-        // If zone is provided directly, use it
-        if (widget.zone != null) {
+        final loadedZone = state is ZoneLoaded && state.zones.isNotEmpty
+            ? state.zones.first
+            : null;
+        final zoneToDisplay = loadedZone ?? widget.zone;
+
+        if (zoneToDisplay != null &&
+            zoneToDisplay.shelves != null &&
+            zoneToDisplay.shelves!.isNotEmpty) {
           return buildScaffold(
-            body: Column(
-              children: [
-                WHSearch(hintText: 'Search Zone...'),
-                const SizedBox(height: 16),
-                ZoneDetailCard(zone: widget.zone!),
-                const SizedBox(height: 16),
-                Expanded(child: ZoneVisualizer(zone: widget.zone!)),
-              ],
+            body: WHRefresh(
+              onRefresh: () async {
+                _loadZoneDetails();
+              },
+              child: Column(
+                children: [
+                  ZoneDetailCard(zone: zoneToDisplay),
+                  const SizedBox(height: 16),
+                  Expanded(child: ZoneVisualizer(zone: zoneToDisplay)),
+                ],
+              ),
             ),
           );
         }
 
-        // Otherwise use bloc state
         if (state is ZoneLoading) {
           return buildScaffold(
             body: const Center(child: CircularProgressIndicator()),
@@ -91,18 +109,30 @@ class _ZoneDetailPageState extends State<ZoneDetailPage> {
           }
           final zone = state.zones.first;
           return buildScaffold(
-            body: Column(
-              children: [
-                WHSearch(hintText: 'Search Zone...'),
-                const SizedBox(height: 16),
-                ZoneDetailCard(zone: zone),
-                const SizedBox(height: 16),
-                Expanded(child: ZoneVisualizer(zone: zone)),
-              ],
+            body: WHRefresh(
+              onRefresh: () async {
+                _loadZoneDetails();
+              },
+              child: Column(
+                children: [
+                  // WHSearch(hintText: 'Search Zone...'),
+                  // const SizedBox(height: 16),
+                  ZoneDetailCard(zone: zone),
+                  const SizedBox(height: 16),
+                  Expanded(child: ZoneVisualizer(zone: zone)),
+                ],
+              ),
             ),
           );
         } else if (state is ZoneError) {
-          return buildScaffold(body: Center(child: Text(state.message)));
+          return buildScaffold(
+            body: WHRefresh(
+              onRefresh: () async {
+                _loadZoneDetails();
+              },
+              child: Center(child: Text(state.message)),
+            ),
+          );
         }
         return buildScaffold(
           body: const Center(child: Text('No zone data available')),

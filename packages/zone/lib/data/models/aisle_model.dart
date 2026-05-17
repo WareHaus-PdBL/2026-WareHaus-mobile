@@ -2,18 +2,12 @@ import 'package:zone/domain/entities/aisle.dart';
 
 class AisleModel extends Aisle {
   AisleModel({
-    required int aisleNumber,
-    required bool isEmpty,
-    required int totalShelves,
-    required int capacity,
-    required int occupiedCapacity,
-  }) : super(
-         aisleNumber: aisleNumber,
-         isEmpty: isEmpty,
-         totalShelves: totalShelves,
-         capacity: capacity,
-         occupiedCapacity: occupiedCapacity,
-       );
+    required super.aisleNumber,
+    required super.isEmpty,
+    required super.totalShelves,
+    required super.capacity,
+    required super.occupiedCapacity,
+  });
 
   factory AisleModel.fromJson(Map<String, dynamic> json) => AisleModel(
     aisleNumber: json['aisleNumber'] as int,

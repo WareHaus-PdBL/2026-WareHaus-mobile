@@ -6,6 +6,7 @@ import 'package:mobile/presentation/bloc/navigation_event.dart';
 import 'package:mobile/presentation/bloc/navigation_state.dart';
 import 'package:product/presentation/pages/product_list_page.dart';
 import 'package:zone/presentation/pages/zone_list_page.dart';
+import 'package:dashboard/presentation/pages/dashboard_page.dart';
 
 class MainPage extends StatelessWidget {
   const MainPage({super.key});
@@ -18,9 +19,8 @@ class MainPage extends StatelessWidget {
           body: IndexedStack(
             index: state.currentIndex,
             children: const [
-              Center(child: Text("Flows Page")),
+              DashboardPage(),
               ProductListPage(),
-              Center(child: Text("Flows Page")),
               ZoneListPage(),
             ],
           ),

@@ -58,4 +58,9 @@ class ZoneApiDatasource {
   Future<void> deleteZone(String id) async {
     await dio.delete('$_zonePath/$id');
   }
+
+  Future<Map<String, dynamic>> getShelfDetails(int shelfId) async {
+    final response = await dio.get('$_zonePath/shelves/$shelfId');
+    return response.data as Map<String, dynamic>;
+  }
 }

@@ -8,6 +8,7 @@ workspace:
   - packages/core_services
   - packages/zone
   - packages/product
+  - packages/dashboard
 
 environment:
   sdk: ^3.8.1
@@ -25,11 +26,17 @@ dependencies:
     path: packages/core_services
   zone:
     path: packages/zone
+  product:
+    path: packages/product
+  dashboard:
+    path: packages/dashboard
   flutter_dotenv: ^6.0.1
   percent_indicator: ^4.2.5
   mobile_scanner: ^7.2.0
   flutter_slidable: ^4.0.3
   flutter_bloc: ^9.1.1
+  gal: ^2.3.2
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:

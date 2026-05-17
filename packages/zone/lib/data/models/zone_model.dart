@@ -6,28 +6,19 @@ import 'package:zone/domain/entities/zone.dart';
 
 class ZoneModel extends Zone {
   ZoneModel({
-    required String id,
-    required String zoneCode,
-    required String zoneName,
-    required String category,
-    required String description,
-    required int totalAisle,
-    required int shelfPerAisle,
-    int capacityPerShelf = 0,
-    int emptyShelves = 0,
+    required super.id,
+    required super.zoneCode,
+    required super.zoneName,
+    required super.category,
+    required super.description,
+    required super.totalAisle,
+    required super.shelfPerAisle,
+    super.capacityPerShelf,
+    super.emptyShelves,
     List<Shelf>? shelves,
     List<Aisle>? aisles,
   }) : super(
-         id: id,
-         zoneCode: zoneCode,
-         zoneName: zoneName,
-         category: category,
-         description: description,
-         totalAisle: totalAisle,
-         shelfPerAisle: shelfPerAisle,
-         capacityPerShelf: capacityPerShelf,
-          emptyShelves: emptyShelves,
-          shelves: shelves ?? [],
+         shelves: shelves ?? [],
           aisles: aisles ?? [],
         );
 

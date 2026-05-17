@@ -5,6 +5,7 @@ import 'package:product/domain/entities/product.dart';
 class ProductCard extends StatelessWidget {
   final Product product;
   final bool? isDetailed;
+  final int? shelfStock;
   final VoidCallback? onView;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -12,12 +13,14 @@ class ProductCard extends StatelessWidget {
     super.key,
     required this.product,
     this.isDetailed = false,
+    this.shelfStock,
     this.onView,
     this.onEdit,
     this.onDelete,
   });
 
   int get _totalStock {
+    if (shelfStock != null) return shelfStock!;
     if (product.currentStock > 0) return product.currentStock;
     final stocks = product.stocks;
     if (stocks == null || stocks.isEmpty) return 0;

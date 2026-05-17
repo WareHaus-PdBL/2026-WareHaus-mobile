@@ -4,20 +4,14 @@ import 'package:product/domain/entities/stock.dart';
 
 class ProductModel extends Product {
   ProductModel({
-    required String id,
-    required String sku,
-    required String productName,
-    required String barcode,
-    required String unitOfMeasure,
-    int currentStock = 0,
+    required super.id,
+    required super.sku,
+    required super.productName,
+    required super.barcode,
+    required super.unitOfMeasure,
+    super.currentStock,
     List<Stock>? stocks,
   }) : super(
-         id: id,
-         sku: sku,
-         productName: productName,
-         barcode: barcode,
-         unitOfMeasure: unitOfMeasure,
-         currentStock: currentStock,
          stocks: stocks ?? [],
        );
 

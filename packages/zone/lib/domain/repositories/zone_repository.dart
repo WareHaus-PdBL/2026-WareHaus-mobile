@@ -1,9 +1,11 @@
 import '../entities/zone.dart';
+import '../entities/shelf_detail.dart';
 
 abstract class ZoneRepository {
   Future<List<Zone>> getZones();
   Future<List<Zone>> getZonesByAisle(String zoneId, int aisleNumber);
   Future<Zone> getZoneDetails(String id);
+  Future<ShelfDetail> getShelfDetails(int shelfId);
   Future<void> createZone(Zone zone);
   Future<void> updateZone({
     required String id,

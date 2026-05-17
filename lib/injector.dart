@@ -1,16 +1,20 @@
 import 'package:core_services/api/api_client.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:dashboard/services/dashboard_service.dart';
 import 'package:product/data/datasources/product_api_datasource.dart';
 import 'package:product/data/repositories/product_repository_impl.dart';
+import 'package:product/domain/usecases/add_stock_location.dart';
+import 'package:product/domain/usecases/move_stock_location.dart';
+import 'package:product/domain/usecases/update_stock_location.dart';
 import 'package:product/domain/usecases/create_product.dart';
 import 'package:product/domain/usecases/delete_product.dart';
-import 'package:product/domain/usecases/delete_product_stock_location.dart';
 import 'package:product/domain/usecases/get_product_detail.dart';
 import 'package:product/domain/usecases/get_products.dart';
 import 'package:product/domain/usecases/update_product.dart';
 import 'package:product/presentation/bloc/product_bloc.dart';
 import 'package:zone/domain/usecases/get_zone_by_aisle.dart';
+import 'package:zone/domain/usecases/get_shelf_details.dart';
 import 'package:zone/presentation/bloc/zone_bloc.dart';
 import 'package:zone/zone.dart';
 
@@ -44,6 +48,9 @@ void setupInjector() {
   getIt.registerLazySingleton(
     () => GetZoneDetails(getIt<ZoneRepositoryImpl>()),
   );
+  getIt.registerLazySingleton(
+    () => GetShelfDetails(getIt<ZoneRepositoryImpl>()),
+  );
   getIt.registerLazySingleton(() => CreateZone(getIt<ZoneRepositoryImpl>()));
   getIt.registerLazySingleton(() => UpdateZone(getIt<ZoneRepositoryImpl>()));
   getIt.registerLazySingleton(() => DeleteZone(getIt<ZoneRepositoryImpl>()));
@@ -65,7 +72,18 @@ void setupInjector() {
     () => DeleteProduct(getIt<ProductRepositoryImpl>()),
   );
   getIt.registerLazySingleton(
-    () => DeleteProductStockLocation(getIt<ProductRepositoryImpl>()),
+    () => AddStockLocation(getIt<ProductRepositoryImpl>()),
+  );
+  getIt.registerLazySingleton(
+    () => UpdateStockLocation(getIt<ProductRepositoryImpl>()),
+  );
+  getIt.registerLazySingleton(
+    () => MoveStockLocation(getIt<ProductRepositoryImpl>()),
+  );
+
+  // Dashboard
+  getIt.registerLazySingleton<DashboardService>(
+    () => DashboardService(getIt<Dio>()),
   );
 
   // ZoneBloc Factory
@@ -77,6 +95,7 @@ void setupInjector() {
       createZoneUsecase: getIt<CreateZone>(),
       updateZoneUsecase: getIt<UpdateZone>(),
       deleteZoneUsecase: getIt<DeleteZone>(),
+      getShelfDetailsUsecase: getIt<GetShelfDetails>(),
     ),
   );
 
@@ -87,7 +106,9 @@ void setupInjector() {
       createProductUsecase: getIt<CreateProduct>(),
       updateProductUsecase: getIt<UpdateProduct>(),
       deleteProductUsecase: getIt<DeleteProduct>(),
-      deleteProductStockLocationUsecase: getIt<DeleteProductStockLocation>(),
+      addStockLocationUsecase: getIt<AddStockLocation>(),
+      updateStockLocationUsecase: getIt<UpdateStockLocation>(),
+      moveStockLocationUsecase: getIt<MoveStockLocation>(),
     ),
   );
 }
