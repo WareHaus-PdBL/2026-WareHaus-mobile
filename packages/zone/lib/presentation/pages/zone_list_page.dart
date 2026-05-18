@@ -23,6 +23,12 @@ class ZoneListPage extends StatefulWidget {
 class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
   bool _hasShownSwipeHint = false;
 
+  // FIX: Simpan zones terakhir yang berhasil di-load.
+  // Digunakan agar saat ZoneLoading (proses delete/update/create),
+  // list lama tetap tampil — bukan berubah ke loading spinner atau
+  // pesan error — sehingga tidak ada "flash" di layar.
+  List<Zone> _lastKnownZones = [];
+
   void _showSwipeHintIfNeeded() {
     if (!mounted || _hasShownSwipeHint) return;
 
@@ -50,13 +56,9 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
 
     final edited = await showZoneEditDialog(context, zone);
 
-    // Tunggu satu frame agar dialog sepenuhnya di-dispose sebelum
-    // men-dispatch event ke bloc. Ini mencegah error _dependents.isEmpty
-    // yang terjadi karena race condition antara dialog disposal dan
-    // state change dari BLoC.
-    // Tunggu hingga frame berikutnya selesai di-render (bukan hanya microtask)
-    // agar dialog widget sepenuhnya di-dispose dari tree sebelum BLoC
-    // emit state baru. Ini mencegah assertion _dependents.isEmpty.
+    // Tunggu hingga frame berikutnya selesai di-render agar dialog
+    // widget sepenuhnya di-dispose dari tree sebelum BLoC emit state baru.
+    // Ini mencegah assertion _dependents.isEmpty.
     await Future.delayed(Duration.zero);
 
     if (edited == null || !mounted) return;
@@ -105,6 +107,11 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
         ],
       ),
     );
+
+    // FIX: Tunggu hingga frame selesai agar dialog fully disposed
+    // sebelum BLoC emit ZoneLoading — mencegah _dependents.isEmpty
+    // dan flash UI yang terjadi karena rebuild di tengah disposal.
+    await Future.delayed(Duration.zero);
 
     if (shouldDelete == true && mounted) {
       bloc.add(DeleteZoneEvent(zone.id));
@@ -161,43 +168,75 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
         }
       },
       child: BlocBuilder<ZoneBloc, ZoneState>(
-        // Rebuild juga saat ZoneOperationSuccess agar list ter-update
         buildWhen: (previous, current) =>
             current is ZoneLoading ||
             current is ZoneLoaded ||
             current is ZoneOperationSuccess ||
             current is ZoneError,
         builder: (context, state) {
-          // Treat ZoneOperationSuccess sama seperti ZoneLoaded untuk tampilan list
-          final effectiveState = state is ZoneOperationSuccess
-              ? ZoneLoaded(state.zones)
-              : state;
+          // FIX: Update _lastKnownZones setiap kali ada data zones yang valid.
+          // Ini memastikan saat ZoneLoading dipicu oleh delete/update/create,
+          // kita punya fallback data untuk tetap menampilkan list lama.
+          if (state is ZoneLoaded) {
+            _lastKnownZones = state.zones;
+          } else if (state is ZoneOperationSuccess) {
+            _lastKnownZones = state.zones;
+          }
+
+          // Resolve data efektif untuk rendering.
+          // Saat ZoneLoading & sudah ada data sebelumnya → tampilkan list lama
+          // + indikator loading tipis di atas, tanpa mengganti seluruh body.
+          final bool isLoadingOverlay =
+              state is ZoneLoading && _lastKnownZones.isNotEmpty;
+
+          final List<Zone> zonesToRender = state is ZoneLoaded
+              ? state.zones
+              : state is ZoneOperationSuccess
+              ? state.zones
+              : _lastKnownZones;
+
           Widget buildScaffold({required Widget body}) {
             return Scaffold(
               backgroundColor: WHColors.background,
               appBar: WHAppbar(title: 'Zone Management'),
-              body: Container(
-                color: WHColors.background,
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Zone Hierarchy", style: WHTypography.heading1),
-                        Text(
-                          "Manage your warehouse zones efficiently",
-                          style: WHTypography.caption,
-                        ),
-                      ],
+              body: Column(
+                children: [
+                  // Indikator loading tipis di bawah AppBar.
+                  // Muncul saat fetch berlangsung tapi list sudah ada,
+                  // sehingga tidak ada flash/replace pada list.
+                  if (isLoadingOverlay)
+                    LinearProgressIndicator(
+                      color: WHColors.primary,
+                      backgroundColor: WHColors.primary.withOpacity(0.15),
+                      minHeight: 3,
                     ),
-                    // const SizedBox(height: 16),
-                    // const WHSearch(hintText: "Search zones..."),
-                    Expanded(child: body),
-                  ],
-                ),
+                  Expanded(
+                    child: Container(
+                      color: WHColors.background,
+                      margin: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+                          const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Zone Hierarchy",
+                                style: WHTypography.heading1,
+                              ),
+                              Text(
+                                "Manage your warehouse zones efficiently",
+                                style: WHTypography.caption,
+                              ),
+                            ],
+                          ),
+                          Expanded(child: body),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
               floatingActionButton: FloatingActionButton(
                 onPressed: () async {
@@ -216,100 +255,83 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
             );
           }
 
-          if (effectiveState is ZoneLoading) {
+          if (state is ZoneLoading && _lastKnownZones.isEmpty) {
+            // Hanya muncul saat pertama kali load (belum ada _lastKnownZones)
             return buildScaffold(
               body: Center(
                 child: CircularProgressIndicator(color: WHColors.primary),
               ),
             );
-          } else if (effectiveState is ZoneLoaded) {
+          } else if (zonesToRender.isNotEmpty) {
             return buildScaffold(
-              body: effectiveState.zones.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No zones available. Tap the + button to create one.',
-                        style: WHTypography.bodyText,
-                        textAlign: TextAlign.center,
-                      ),
-                    )
-                  : WHRefresh(
-                      onRefresh: () async {
-                        context.read<ZoneBloc>().add(GetZonesEvent());
-                      },
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 16),
-                          Expanded(
-                            child: ListView.separated(
-                              key: const PageStorageKey('zone_list_key'),
-                              cacheExtent: 588,
-                              addAutomaticKeepAlives: false,
-                              addRepaintBoundaries: true,
-                              separatorBuilder: (context, index) =>
-                                  const SizedBox(height: 16),
-                              itemCount: effectiveState.zones.length,
-                              itemBuilder: (context, index) {
-                                return ZoneCard(
-                                  zone: effectiveState.zones[index],
-                                  onEdit: () => _showEditZoneDialog(
-                                    effectiveState.zones[index],
+              body: WHRefresh(
+                onRefresh: () async {
+                  context.read<ZoneBloc>().add(GetZonesEvent());
+                },
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: ListView.separated(
+                        key: const PageStorageKey('zone_list_key'),
+                        cacheExtent: 588,
+                        addAutomaticKeepAlives: false,
+                        addRepaintBoundaries: true,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 16),
+                        itemCount: zonesToRender.length,
+                        itemBuilder: (context, index) {
+                          return ZoneCard(
+                            zone: zonesToRender[index],
+                            onEdit: () =>
+                                _showEditZoneDialog(zonesToRender[index]),
+                            onDelete: () =>
+                                _confirmDeleteZone(zonesToRender[index]),
+                            onTap: () async {
+                              final navigator = Navigator.of(context);
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder: (ctx) => Center(
+                                  child: CircularProgressIndicator(
+                                    color: WHColors.primary,
                                   ),
-                                  onDelete: () => _confirmDeleteZone(
-                                    effectiveState.zones[index],
-                                  ),
-                                  onTap: () async {
-                                    final navigator = Navigator.of(context);
-                                    showDialog(
-                                      context: context,
-                                      barrierDismissible: false,
-                                      builder: (ctx) => Center(
-                                        child: CircularProgressIndicator(
-                                          color: WHColors.primary,
-                                        ),
+                                ),
+                              );
+                              final changed = await Navigator.of(context)
+                                  .push<bool>(
+                                    PageRouteBuilder(
+                                      pageBuilder: (_, _, _) => ZoneDetailPage(
+                                        zoneId: zonesToRender[index].id,
+                                        zoneName: zonesToRender[index].zoneName,
                                       ),
-                                    );
-                                    final changed = await Navigator.of(context)
-                                        .push<bool>(
-                                          PageRouteBuilder(
-                                            pageBuilder: (_, _, _) =>
-                                                ZoneDetailPage(
-                                                  zoneId: effectiveState
-                                                      .zones[index]
-                                                      .id,
-                                                  zoneName: effectiveState
-                                                      .zones[index]
-                                                      .zoneName,
-                                                ),
-                                            transitionDuration: Duration.zero,
-                                            reverseTransitionDuration:
-                                                Duration.zero,
-                                          ),
-                                        );
-                                    if (!mounted) {
-                                      return;
-                                    }
-                                    if (navigator.canPop()) {
-                                      navigator.pop();
-                                    }
-                                    if (changed == true) {
-                                      context.read<ZoneBloc>().add(
-                                        GetZonesEvent(),
-                                      );
-                                    }
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ],
+                                      transitionDuration: Duration.zero,
+                                      reverseTransitionDuration: Duration.zero,
+                                    ),
+                                  );
+                              if (!mounted) {
+                                return;
+                              }
+                              if (navigator.canPop()) {
+                                navigator.pop();
+                              }
+                              if (changed == true) {
+                                context.read<ZoneBloc>().add(GetZonesEvent());
+                              }
+                            },
+                          );
+                        },
                       ),
                     ),
+                  ],
+                ),
+              ),
             );
-          } else if (effectiveState is ZoneError) {
+          } else if (state is ZoneError) {
             return buildScaffold(
               body: Center(
                 child: Text(
-                  'Error: ${effectiveState.message}',
+                  'Error: ${state.message}',
                   style: const TextStyle(color: Colors.red),
                 ),
               ),

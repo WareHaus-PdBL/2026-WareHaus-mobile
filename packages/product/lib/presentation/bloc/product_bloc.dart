@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:product/data/models/stock_location_input_model.dart';
 import 'package:product/domain/entities/product.dart';
 import 'package:product/domain/entities/stock_location_input.dart';
-import 'package:product/data/models/stock_location_input_model.dart';
 import 'package:product/domain/usecases/add_stock_location.dart';
 import 'package:product/domain/usecases/create_product.dart';
 import 'package:product/domain/usecases/delete_product.dart';
@@ -68,6 +68,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       try {
         await createProductUsecase(_productFromEvent(event));
         debugPrint('[ProductBloc] CreateProductEvent success');
+        emit(ProductActionSuccess('created'));
         add(GetProductsEvent());
       } catch (e) {
         debugPrint('[ProductBloc] CreateProductEvent error: $e');
@@ -105,11 +106,13 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       );
       emit(ProductLoading());
       try {
-        await addStockLocationUsecase(StockLocationInput(
-          productId: event.productId,
-          shelfId: event.shelfId,
-          quantity: event.quantity,
-        ));
+        await addStockLocationUsecase(
+          StockLocationInput(
+            productId: event.productId,
+            shelfId: event.shelfId,
+            quantity: event.quantity,
+          ),
+        );
         debugPrint('[ProductBloc] AddStockLocationEvent success');
         add(GetProductDetailsEvent(event.productId));
       } catch (e) {
@@ -124,11 +127,13 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       );
       emit(ProductLoading());
       try {
-        await updateStockLocationUsecase(StockLocationInput(
-          productId: event.productId,
-          shelfId: event.shelfId,
-          quantity: event.quantity,
-        ));
+        await updateStockLocationUsecase(
+          StockLocationInput(
+            productId: event.productId,
+            shelfId: event.shelfId,
+            quantity: event.quantity,
+          ),
+        );
         debugPrint('[ProductBloc] UpdateStockLocationEvent success');
         add(GetProductDetailsEvent(event.productId));
       } catch (e) {
@@ -143,12 +148,14 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       );
       emit(ProductLoading());
       try {
-        await moveStockLocationUsecase(MoveStockInput(
-          productId: event.productId,
-          fromShelfId: event.fromShelfId,
-          toShelfId: event.toShelfId,
-          quantity: event.quantity,
-        ));
+        await moveStockLocationUsecase(
+          MoveStockInput(
+            productId: event.productId,
+            fromShelfId: event.fromShelfId,
+            toShelfId: event.toShelfId,
+            quantity: event.quantity,
+          ),
+        );
         debugPrint('[ProductBloc] MoveStockLocationEvent success');
         add(GetProductDetailsEvent(event.productId));
       } catch (e) {
@@ -168,7 +175,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         unitOfMeasure: event.unitOfMeasure,
       );
     }
-
     if (event is UpdateProductEvent) {
       return Product(
         id: event.id,
@@ -178,7 +184,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
         unitOfMeasure: event.unitOfMeasure ?? '',
       );
     }
-
     throw ArgumentError('Unsupported product event: $event');
   }
 }

@@ -23,3 +23,8 @@ class ProductError extends ProductState {
 
   ProductError(this.message);
 }
+
+class ProductActionSuccess extends ProductState {
+  final String action;
+  ProductActionSuccess(this.action);
+}
