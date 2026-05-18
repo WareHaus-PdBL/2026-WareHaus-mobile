@@ -83,7 +83,9 @@ class _ProductListPageState extends State<ProductListPage> with RouteAware {
                     return const Center(child: CircularProgressIndicator());
                   }
 
-                  if (state is ProductDetailLoaded || state is ProductInitial) {
+                  if (state is ProductDetailLoaded ||
+                      state is ProductInitial ||
+                      state is ProductActionSuccess) {
                     return const Center(child: CircularProgressIndicator());
                   }
 
@@ -188,16 +190,17 @@ class _ProductListPageState extends State<ProductListPage> with RouteAware {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final navigator = Navigator.of(context);
-          await navigator.push(
+          await Navigator.of(context).push(
             PageRouteBuilder(
               pageBuilder: (_, _, _) => const CreateProductPage(),
               transitionDuration: Duration.zero,
               reverseTransitionDuration: Duration.zero,
             ),
           );
-          if (!mounted) return;
-          context.read<ProductBloc>().add(GetProductsEvent());
+          // NOTE: GetProductsEvent is already handled by two places:
+          // 1. ProductBloc fires it internally after CreateProductEvent succeeds.
+          // 2. didPopNext() fires it when this page comes back to the top.
+          // No need to fire it a third time here.
         },
         backgroundColor: WHColors.primary3,
         child: const Icon(Icons.add, color: WHColors.surface),

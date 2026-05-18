@@ -116,7 +116,7 @@ class _CreateProductPageState extends State<CreateProductPage> {
   Widget build(BuildContext context) {
     return BlocListener<ProductBloc, ProductState>(
       listener: (context, state) {
-        if (state is ProductLoaded) {
+        if (state is ProductActionSuccess) {
           Navigator.of(context).pop(true);
         } else if (state is ProductError) {
           ScaffoldMessenger.of(

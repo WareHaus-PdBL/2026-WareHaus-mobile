@@ -68,6 +68,9 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       try {
         await createProductUsecase(_productFromEvent(event));
         debugPrint('[ProductBloc] CreateProductEvent success');
+        // Emit success FIRST so the UI (CreateProductPage) can pop safely,
+        // then trigger the list refresh.
+        emit(ProductActionSuccess('created'));
         add(GetProductsEvent());
       } catch (e) {
         debugPrint('[ProductBloc] CreateProductEvent error: $e');
