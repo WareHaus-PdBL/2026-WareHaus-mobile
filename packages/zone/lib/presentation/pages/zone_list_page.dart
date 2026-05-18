@@ -162,15 +162,14 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
         }
       },
       child: BlocListener<ZoneBloc, ZoneState>(
-        // Tangkap ZoneError → tampilkan snackbar, jangan ubah UI halaman
         listenWhen: (previous, current) => current is ZoneError,
         listener: (context, state) {
-          if (state is ZoneError) {
+          // Hanya tampilkan snackbar jika halaman ini yang aktif (bukan create_zone di atas)
+          if (state is ZoneError && (ModalRoute.of(context)?.isCurrent ?? false)) {
             WHSnackBar.showError(context, state.message);
           }
         },
         child: BlocBuilder<ZoneBloc, ZoneState>(
-        // Rebuild saat ZoneOperationSuccess agar list ter-update
         // ZoneError TIDAK masuk buildWhen supaya list tidak blank saat error
         buildWhen: (previous, current) =>
             current is ZoneLoading ||
@@ -300,11 +299,7 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
                                     if (navigator.canPop()) {
                                       navigator.pop();
                                     }
-                                    if (changed == true) {
-                                      context.read<ZoneBloc>().add(
-                                        GetZonesEvent(),
-                                      );
-                                    }
+                                    context.read<ZoneBloc>().add(GetZonesEvent());
                                   },
                                 );
                               },

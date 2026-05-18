@@ -174,32 +174,12 @@ class _CreateZonePageState extends State<CreateZonePage> {
         if (state is ZoneOperationSuccess) {
           // Tampilkan pesan sukses di ZoneListPage via ScaffoldMessenger app-level,
           // lalu pop kembali. ZoneListPage.didPopNext() akan refresh list-nya.
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: const Row(
-                  children: [
-                    Icon(Icons.check_circle, color: Colors.white, size: 18),
-                    SizedBox(width: 8),
-                    Text(
-                      'Zone saved successfully!',
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-                backgroundColor: Colors.green.shade600,
-                behavior: SnackBarBehavior.floating,
-                duration: const Duration(seconds: 3),
-              ),
-            );
+          WHSnackBar.showSuccess(context, 'Zone berhasil disimpan!');
           Navigator.of(context).pop(true);
         } else if (state is ZoneError) {
           // Reset flag agar user bisa coba lagi setelah error.
           setState(() => _isSubmitting = false);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error: ${state.message}')),
-          );
+          WHSnackBar.showError(context, state.message);
         }
       },
       builder: (context, state) {
