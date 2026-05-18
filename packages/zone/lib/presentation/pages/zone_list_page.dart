@@ -158,6 +158,7 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
       listener: (context, state) {
         if (state.currentIndex == 2) {
           _showSwipeHintIfNeeded();
+          context.read<ZoneBloc>().add(GetZonesEvent());
         }
       },
       child: BlocBuilder<ZoneBloc, ZoneState>(
