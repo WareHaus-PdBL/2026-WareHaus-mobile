@@ -2,6 +2,7 @@ import 'package:core_services/api/api_client.dart';
 import 'package:core_ui/core_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:mobile/route_observer.dart';
 import 'package:zone/presentation/bloc/zone_bloc.dart';
 import 'package:zone/presentation/bloc/zone_event.dart';
 import 'package:zone/presentation/bloc/zone_state.dart';
@@ -24,7 +25,8 @@ class ZoneAisleDetailPage extends StatefulWidget {
   State<ZoneAisleDetailPage> createState() => _ZoneAisleDetailPageState();
 }
 
-class _ZoneAisleDetailPageState extends State<ZoneAisleDetailPage> {
+class _ZoneAisleDetailPageState extends State<ZoneAisleDetailPage>
+    with RouteAware {
   String get _downloadUrl {
     final zoneId = int.tryParse(widget.zoneId);
     if (zoneId == null) return '';
@@ -42,6 +44,29 @@ class _ZoneAisleDetailPageState extends State<ZoneAisleDetailPage> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute != null) {
+      routeObserver.subscribe(this, modalRoute);
+    }
+  }
+
+  @override
+  void dispose() {
+    routeObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  /// Dipanggil otomatis saat user kembali (pop) dari ShelfDetailPage.
+  /// Ini menggantikan logika reload yang sebelumnya ada di dalam BlocBuilder
+  /// (yang menyebabkan bug: ShelfDetailLoaded tidak di-handle → spinner abadi).
+  @override
+  void didPopNext() {
+    _loadAisleData();
+  }
+
   void _loadAisleData() {
     context.read<ZoneBloc>().add(
       GetZoneByAisleEvent(
@@ -55,14 +80,6 @@ class _ZoneAisleDetailPageState extends State<ZoneAisleDetailPage> {
   Widget build(BuildContext context) {
     return BlocBuilder<ZoneBloc, ZoneState>(
       builder: (context, state) {
-        if (state is ShelfDetailLoaded) {
-          // Don't reload - this is child page result we're holding
-        } else if (state is! ZoneLoaded && state is! ZoneLoading) {
-          Future.delayed(const Duration(milliseconds: 100), () {
-            if (mounted) _loadAisleData();
-          });
-        }
-
         return Scaffold(
           backgroundColor: WHColors.background,
           appBar: WHAppbar(
@@ -105,7 +122,9 @@ class _ZoneAisleDetailPageState extends State<ZoneAisleDetailPage> {
   Widget _buildContent(ZoneState state) {
     if (state is ZoneLoading) {
       return Center(child: CircularProgressIndicator(color: WHColors.primary));
-    } else if (state is ZoneLoaded) {
+    }
+
+    if (state is ZoneLoaded) {
       if (state.zones.isEmpty) {
         return Center(
           child: Column(
@@ -127,7 +146,9 @@ class _ZoneAisleDetailPageState extends State<ZoneAisleDetailPage> {
         },
         child: ZoneAisleVisualizer(zone: state.zones.first),
       );
-    } else if (state is ZoneError) {
+    }
+
+    if (state is ZoneError) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -142,6 +163,10 @@ class _ZoneAisleDetailPageState extends State<ZoneAisleDetailPage> {
         ),
       );
     }
+
+    // State lain (ShelfDetailLoaded, ZoneInitial, dll):
+    // Tampilkan loading — didPopNext() sudah trigger _loadAisleData()
+    // sehingga state akan segera berubah ke ZoneLoading → ZoneLoaded.
     return Center(child: CircularProgressIndicator(color: WHColors.primary));
   }
 }
