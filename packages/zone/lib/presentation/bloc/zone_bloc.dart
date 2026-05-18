@@ -105,7 +105,6 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         // Emit ZoneOperationSuccess agar listener (CreateZonePage) bisa pop,
         // lalu emit ZoneLoaded agar ZoneListPage punya data terbaru.
         emit(ZoneOperationSuccess(zones));
-        emit(ZoneLoaded(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] CreateZoneEvent error: $e');
         emit(ZoneError(e.toString()));
