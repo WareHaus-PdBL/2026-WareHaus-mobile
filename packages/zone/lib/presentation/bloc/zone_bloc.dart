@@ -1,3 +1,5 @@
+import 'package:core_services/interceptors/api_exception.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zone/domain/entities/zone.dart';
@@ -149,7 +151,17 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
 }
 
 String _extractErrorMessage(Object e) {
-  if (e is Error) return e.toString();
-  if (e is Exception) return e.toString();
-  return 'Unknown error';
+  // DioException membungkus ApiException di field .error
+  if (e is DioException) {
+    if (e.error is ApiException) {
+      return (e.error as ApiException).message;
+    }
+    final data = e.response?.data;
+    if (data is Map) {
+      final msg = data['detail'] ?? data['message'];
+      if (msg is String && msg.isNotEmpty) return msg;
+    }
+  }
+  if (e is ApiException) return e.message;
+  return e.toString();
 }

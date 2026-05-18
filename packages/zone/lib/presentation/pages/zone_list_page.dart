@@ -161,13 +161,21 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
           context.read<ZoneBloc>().add(GetZonesEvent());
         }
       },
-      child: BlocBuilder<ZoneBloc, ZoneState>(
-        // Rebuild juga saat ZoneOperationSuccess agar list ter-update
+      child: BlocListener<ZoneBloc, ZoneState>(
+        // Tangkap ZoneError → tampilkan snackbar, jangan ubah UI halaman
+        listenWhen: (previous, current) => current is ZoneError,
+        listener: (context, state) {
+          if (state is ZoneError) {
+            WHSnackBar.showError(context, state.message);
+          }
+        },
+        child: BlocBuilder<ZoneBloc, ZoneState>(
+        // Rebuild saat ZoneOperationSuccess agar list ter-update
+        // ZoneError TIDAK masuk buildWhen supaya list tidak blank saat error
         buildWhen: (previous, current) =>
             current is ZoneLoading ||
             current is ZoneLoaded ||
-            current is ZoneOperationSuccess ||
-            current is ZoneError,
+            current is ZoneOperationSuccess,
         builder: (context, state) {
           // Treat ZoneOperationSuccess sama seperti ZoneLoaded untuk tampilan list
           final effectiveState = state is ZoneOperationSuccess
@@ -306,21 +314,13 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
                       ),
                     ),
             );
-          } else if (effectiveState is ZoneError) {
-            return buildScaffold(
-              body: Center(
-                child: Text(
-                  'Error: ${effectiveState.message}',
-                  style: const TextStyle(color: Colors.red),
-                ),
-              ),
-            );
           } else {
             return buildScaffold(
               body: const Center(child: Text('No zones available')),
             );
           }
         },
+        ),
       ),
     );
   }
