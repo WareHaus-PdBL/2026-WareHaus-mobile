@@ -22,6 +22,9 @@ class _CreateZonePageState extends State<CreateZonePage> {
   final _shelfPerAisleController = TextEditingController();
   final _capacityPerShelfController = TextEditingController();
 
+  /// Guard mencegah double-submit saat menunggu respons bloc.
+  bool _isSubmitting = false;
+
   static const _primaryOrange = Color(0xFFD94F1E);
   static const _borderColor = Color(0xFFDDDDDD);
   static const _hintColor = WHColors.grey;
@@ -39,7 +42,10 @@ class _CreateZonePageState extends State<CreateZonePage> {
   }
 
   void _submit() {
+    if (_isSubmitting) return; // cegah double-tap
     if (!_formKey.currentState!.validate()) return;
+    setState(() => _isSubmitting = true);
+
     final totalAisle = int.tryParse(_totalAisleController.text) ?? 0;
     final shelfPerAisle = int.tryParse(_shelfPerAisleController.text) ?? 0;
     final capacityPerShelf =
@@ -161,135 +167,155 @@ class _CreateZonePageState extends State<CreateZonePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ZoneBloc, ZoneState>(
+    // BlocConsumer: listener untuk navigasi & snackbar,
+    //               builder untuk disable tombol saat loading.
+    return BlocConsumer<ZoneBloc, ZoneState>(
       listener: (context, state) {
         if (state is ZoneOperationSuccess) {
+          // Tampilkan pesan sukses di ZoneListPage via ScaffoldMessenger app-level,
+          // lalu pop kembali. ZoneListPage.didPopNext() akan refresh list-nya.
+          WHSnackBar.showSuccess(context, 'Zone berhasil disimpan!');
           Navigator.of(context).pop(true);
         } else if (state is ZoneError) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Error: ${state.message}')));
+          // Reset flag agar user bisa coba lagi setelah error.
+          setState(() => _isSubmitting = false);
+          WHSnackBar.showError(context, state.message);
         }
       },
-      child: Scaffold(
-        backgroundColor: WHColors.background,
-        appBar: WHAppbar(title: 'Add Zone'),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _label('Zone Code'),
-                      TextFormField(
-                        controller: _zoneCodeController,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: _inputDecoration('e.g., ELC'),
-                      ),
-                      const SizedBox(height: 16),
+      builder: (context, state) {
+        final isLoading = state is ZoneLoading || _isSubmitting;
 
-                      _label('Zone Name'),
-                      TextFormField(
-                        controller: _zoneNameController,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: _inputDecoration('e.g., Electronic'),
-                        validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Zone name required'
-                            : null,
-                      ),
-                      const SizedBox(height: 16),
+        return Scaffold(
+          backgroundColor: WHColors.background,
+          appBar: WHAppbar(title: 'Add Zone'),
+          body: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _label('Zone Code'),
+                        TextFormField(
+                          controller: _zoneCodeController,
+                          style: const TextStyle(fontSize: 13),
+                          decoration: _inputDecoration('e.g., ELC'),
+                        ),
+                        const SizedBox(height: 16),
 
-                      _label('Zone Category'),
-                      TextFormField(
-                        controller: _categoryController,
-                        style: const TextStyle(fontSize: 13),
-                        decoration: _inputDecoration('e.g., Electronic'),
-                      ),
-                      const SizedBox(height: 16),
+                        _label('Zone Name'),
+                        TextFormField(
+                          controller: _zoneNameController,
+                          style: const TextStyle(fontSize: 13),
+                          decoration: _inputDecoration('e.g., Electronic'),
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Zone name required'
+                              : null,
+                        ),
+                        const SizedBox(height: 16),
 
-                      _numericInput('Total Aisle', _totalAisleController),
-                      const SizedBox(height: 16),
+                        _label('Zone Category'),
+                        TextFormField(
+                          controller: _categoryController,
+                          style: const TextStyle(fontSize: 13),
+                          decoration: _inputDecoration('e.g., Electronic'),
+                        ),
+                        const SizedBox(height: 16),
 
-                      _numericInput(
-                        'Shelf Per Aisle',
-                        _shelfPerAisleController,
-                      ),
-                      const SizedBox(height: 16),
+                        _numericInput('Total Aisle', _totalAisleController),
+                        const SizedBox(height: 16),
 
-                      _numericInput(
-                        'Capacity Per Shelf',
-                        _capacityPerShelfController,
-                      ),
-                      const SizedBox(height: 16),
+                        _numericInput(
+                          'Shelf Per Aisle',
+                          _shelfPerAisleController,
+                        ),
+                        const SizedBox(height: 16),
 
-                      _label('Description'),
-                      Stack(
-                        children: [
-                          TextFormField(
-                            controller: _descriptionController,
-                            style: const TextStyle(fontSize: 13),
-                            decoration: _inputDecoration(
-                              'Add description here ....',
+                        _numericInput(
+                          'Capacity Per Shelf',
+                          _capacityPerShelfController,
+                        ),
+                        const SizedBox(height: 16),
+
+                        _label('Description'),
+                        Stack(
+                          children: [
+                            TextFormField(
+                              controller: _descriptionController,
+                              style: const TextStyle(fontSize: 13),
+                              decoration: _inputDecoration(
+                                'Add description here ....',
+                              ),
+                              maxLines: 4,
                             ),
-                            maxLines: 4,
-                          ),
-                          const Positioned(
-                            right: 10,
-                            top: 10,
-                            child: Text(
-                              '(Optional)',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: Color(0xFFB0B0B0),
+                            const Positioned(
+                              right: 10,
+                              top: 10,
+                              child: Text(
+                                '(Optional)',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Color(0xFFB0B0B0),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            // Tombol fixed di bawah
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _submit,
-                  icon: const Icon(
-                    Icons.check_circle_outline,
-                    size: 17,
-                    color: Colors.white,
-                  ),
-                  label: const Text(
-                    'Save Zone',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+              // Tombol fixed di bawah — disabled & tunjukkan spinner saat loading
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: isLoading ? null : _submit,
+                    icon: isLoading
+                        ? const SizedBox(
+                            width: 17,
+                            height: 17,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.check_circle_outline,
+                            size: 17,
+                            color: Colors.white,
+                          ),
+                    label: Text(
+                      isLoading ? 'Saving...' : 'Save Zone',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _primaryOrange,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.zero,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isLoading
+                          ? _primaryOrange.withOpacity(0.6)
+                          : _primaryOrange,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.zero,
+                      ),
+                      elevation: 0,
                     ),
-                    elevation: 0,
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

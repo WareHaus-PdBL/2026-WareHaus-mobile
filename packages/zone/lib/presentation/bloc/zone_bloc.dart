@@ -1,3 +1,5 @@
+import 'package:core_services/interceptors/api_exception.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zone/domain/entities/zone.dart';
@@ -38,7 +40,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         emit(ZoneLoaded(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] GetZonesEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
     on<GetZoneByAisleEvent>((event, emit) async {
@@ -53,7 +55,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         emit(ZoneLoaded(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] GetZoneByAisleEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
     on<GetZoneDetailsEvent>((event, emit) async {
@@ -65,7 +67,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         emit(ZoneLoaded([zone]));
       } catch (e) {
         debugPrint('[ZoneBloc] GetZoneDetailsEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
     on<GetShelfDetailsEvent>((event, emit) async {
@@ -81,7 +83,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         );
       } catch (e) {
         debugPrint('[ZoneBloc] GetShelfDetailsEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
     on<CreateZoneEvent>((event, emit) async {
@@ -105,10 +107,9 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         // Emit ZoneOperationSuccess agar listener (CreateZonePage) bisa pop,
         // lalu emit ZoneLoaded agar ZoneListPage punya data terbaru.
         emit(ZoneOperationSuccess(zones));
-        emit(ZoneLoaded(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] CreateZoneEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
     on<UpdateZoneEvent>((event, emit) async {
@@ -129,7 +130,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         emit(ZoneLoaded(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] UpdateZoneEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
     on<DeleteZoneEvent>((event, emit) async {
@@ -143,8 +144,24 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         emit(ZoneLoaded(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] DeleteZoneEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
   }
+}
+
+String _extractErrorMessage(Object e) {
+  // DioException membungkus ApiException di field .error
+  if (e is DioException) {
+    if (e.error is ApiException) {
+      return (e.error as ApiException).message;
+    }
+    final data = e.response?.data;
+    if (data is Map) {
+      final msg = data['detail'] ?? data['message'];
+      if (msg is String && msg.isNotEmpty) return msg;
+    }
+  }
+  if (e is ApiException) return e.message;
+  return e.toString();
 }
