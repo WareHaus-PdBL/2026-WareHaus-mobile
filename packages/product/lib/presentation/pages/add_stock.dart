@@ -94,12 +94,7 @@ class _AddStockPageState extends State<AddStockPage> {
     }
 
     if (matched == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Zone "$raw" tidak ditemukan'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      WHSnackBar.showError(context, 'Zone "$raw" tidak ditemukan');
       return;
     }
 
@@ -109,12 +104,7 @@ class _AddStockPageState extends State<AddStockPage> {
 
     _onZoneSelected(matched.id); // trigger GetZoneDetailsEvent
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Zone ${matched.zoneCode} dipilih dari QR'),
-        backgroundColor: Colors.green,
-      ),
-    );
+    WHSnackBar.showInfo(context, 'Zone ${matched.zoneCode} dipilih dari QR');
   }
 
   void _submit() {
@@ -502,9 +492,7 @@ class _AddStockPageState extends State<AddStockPage> {
 
           if (state is ProductError) {
             setState(() => _isSubmitting = false);
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text('Error: ${state.message}')));
+            WHSnackBar.showError(context, state.message);
           }
 
           if (state is ProductDetailLoaded &&
@@ -675,7 +663,7 @@ class _QrScannerPageState extends State<_QrScannerPage> {
   }
 }
 
-// ── Shelf option model ────────────────────────────────────────────────────────
+// Shelf option model
 
 class _ShelfOption {
   final int id;

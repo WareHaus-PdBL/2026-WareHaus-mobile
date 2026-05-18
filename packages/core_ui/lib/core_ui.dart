@@ -8,3 +8,4 @@ export 'src/widgets/button/wh_button_secondary.dart';
 export 'src/widgets/button/wh_button_tersiery.dart';
 export 'src/widgets/wh_empty_state.dart';
 export 'src/widgets/wh_refresh.dart';
+export 'src/widgets/wh_snackbar.dart';

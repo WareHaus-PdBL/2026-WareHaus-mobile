@@ -38,7 +38,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         emit(ZoneLoaded(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] GetZonesEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
     on<GetZoneByAisleEvent>((event, emit) async {
@@ -53,7 +53,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         emit(ZoneLoaded(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] GetZoneByAisleEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
     on<GetZoneDetailsEvent>((event, emit) async {
@@ -65,7 +65,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         emit(ZoneLoaded([zone]));
       } catch (e) {
         debugPrint('[ZoneBloc] GetZoneDetailsEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
     on<GetShelfDetailsEvent>((event, emit) async {
@@ -81,7 +81,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         );
       } catch (e) {
         debugPrint('[ZoneBloc] GetShelfDetailsEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
     on<CreateZoneEvent>((event, emit) async {
@@ -107,7 +107,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         emit(ZoneOperationSuccess(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] CreateZoneEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
     on<UpdateZoneEvent>((event, emit) async {
@@ -128,7 +128,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         emit(ZoneLoaded(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] UpdateZoneEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
     on<DeleteZoneEvent>((event, emit) async {
@@ -142,8 +142,14 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         emit(ZoneLoaded(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] DeleteZoneEvent error: $e');
-        emit(ZoneError(e.toString()));
+        emit(ZoneError(_extractErrorMessage(e)));
       }
     });
   }
+}
+
+String _extractErrorMessage(Object e) {
+  if (e is Error) return e.toString();
+  if (e is Exception) return e.toString();
+  return 'Unknown error';
 }
