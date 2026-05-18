@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:zone/domain/entities/zone.dart';
 import 'package:zone/domain/usecases/create_zone.dart';
 import 'package:zone/domain/usecases/delete_zone.dart';
+import 'package:zone/domain/usecases/get_shelf_details.dart';
 import 'package:zone/domain/usecases/get_zone_by_aisle.dart';
 import 'package:zone/domain/usecases/get_zone_details.dart';
 import 'package:zone/domain/usecases/get_zones.dart';
 import 'package:zone/domain/usecases/update_zone.dart';
-import 'package:zone/domain/usecases/get_shelf_details.dart';
 import 'package:zone/presentation/bloc/zone_event.dart';
 import 'package:zone/presentation/bloc/zone_state.dart';
 
@@ -73,8 +73,12 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
       emit(ZoneLoading());
       try {
         final shelfDetail = await getShelfDetailsUsecase(event.shelfId);
-        debugPrint('[ZoneBloc] GetShelfDetailsEvent success: ${shelfDetail.shelfCode}');
-        emit(ShelfDetailLoaded(shelfId: event.shelfId, shelfDetail: shelfDetail));
+        debugPrint(
+          '[ZoneBloc] GetShelfDetailsEvent success: ${shelfDetail.shelfCode}',
+        );
+        emit(
+          ShelfDetailLoaded(shelfId: event.shelfId, shelfDetail: shelfDetail),
+        );
       } catch (e) {
         debugPrint('[ZoneBloc] GetShelfDetailsEvent error: $e');
         emit(ZoneError(e.toString()));
@@ -98,6 +102,9 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         await createZoneUsecase(zone);
         final zones = await getZonesUsecase();
         debugPrint('[ZoneBloc] CreateZoneEvent success');
+        // Emit ZoneOperationSuccess agar listener (CreateZonePage) bisa pop,
+        // lalu emit ZoneLoaded agar ZoneListPage punya data terbaru.
+        emit(ZoneOperationSuccess(zones));
         emit(ZoneLoaded(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] CreateZoneEvent error: $e');
@@ -116,6 +123,9 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         );
         final zones = await getZonesUsecase();
         debugPrint('[ZoneBloc] UpdateZoneEvent success');
+        // Emit ZoneOperationSuccess lalu ZoneLoaded agar list ter-refresh
+        // tanpa race condition saat dialog/page sedang di-dispose.
+        emit(ZoneOperationSuccess(zones));
         emit(ZoneLoaded(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] UpdateZoneEvent error: $e');
@@ -129,6 +139,7 @@ class ZoneBloc extends Bloc<ZoneEvent, ZoneState> {
         await deleteZoneUsecase(event.id);
         final zones = await getZonesUsecase();
         debugPrint('[ZoneBloc] DeleteZoneEvent success');
+        emit(ZoneOperationSuccess(zones));
         emit(ZoneLoaded(zones));
       } catch (e) {
         debugPrint('[ZoneBloc] DeleteZoneEvent error: $e');

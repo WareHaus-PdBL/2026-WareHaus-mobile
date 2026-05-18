@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:dashboard/services/dashboard_service.dart';
 import 'package:product/presentation/bloc/product_bloc.dart';
 import 'package:product/presentation/bloc/product_state.dart';
+import 'package:get_it/get_it.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -22,8 +23,8 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    // Use the Dio base URL from environment
-    final dio = Dio(BaseOptions(baseUrl: 'https://aorta-wrongness-wifi.ngrok-free.dev/v1'));
+    // Get Dio instance from core_services
+    final dio = GetIt.instance<Dio>();
     _service = DashboardService(dio);
     _fetchDashboardData();
   }

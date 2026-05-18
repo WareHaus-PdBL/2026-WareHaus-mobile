@@ -2,240 +2,185 @@ import 'package:core_ui/core_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:zone/domain/entities/zone.dart';
 
+/// Data hasil edit yang dikembalikan ke caller.
 class ZoneEditResult {
+  final String zoneName;
+  final String category;
+  final String description;
+
   const ZoneEditResult({
     required this.zoneName,
     required this.category,
     required this.description,
   });
-
-  final String zoneName;
-  final String category;
-  final String description;
 }
 
-Future<ZoneEditResult?> showZoneEditDialog(
-  BuildContext context,
-  Zone zone,
-) async {
-  final zoneNameController = TextEditingController(text: zone.zoneName);
-  final categoryController = TextEditingController(text: zone.category);
-  final descriptionController = TextEditingController(text: zone.description);
+/// Tampilkan dialog edit zone dan kembalikan [ZoneEditResult] jika user
+/// menekan Save, atau null jika user membatalkan.
+///
+/// Dispatch event BLoC **setelah** Future ini selesai (dialog sudah
+/// sepenuhnya di-dispose) agar tidak memicu assertion `_dependents.isEmpty`.
+Future<ZoneEditResult?> showZoneEditDialog(BuildContext context, Zone zone) {
+  return showDialog<ZoneEditResult>(
+    context: context,
+    barrierDismissible: false,
+    builder: (_) => _ZoneEditDialog(zone: zone),
+  );
+}
 
-  try {
-    final shouldSave = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => _ZoneEditDialog(
-        zoneNameController: zoneNameController,
-        categoryController: categoryController,
-        descriptionController: descriptionController,
-      ),
+class _ZoneEditDialog extends StatefulWidget {
+  final Zone zone;
+
+  const _ZoneEditDialog({required this.zone});
+
+  @override
+  State<_ZoneEditDialog> createState() => _ZoneEditDialogState();
+}
+
+class _ZoneEditDialogState extends State<_ZoneEditDialog> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _categoryController;
+  late final TextEditingController _descriptionController;
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.zone.zoneName);
+    _categoryController = TextEditingController(text: widget.zone.category);
+    _descriptionController = TextEditingController(
+      text: widget.zone.description,
     );
-
-    if (shouldSave != true) return null;
-
-    return ZoneEditResult(
-      zoneName: zoneNameController.text.trim(),
-      category: categoryController.text.trim(),
-      description: descriptionController.text.trim(),
-    );
-  } finally {
-    zoneNameController.dispose();
-    categoryController.dispose();
-    descriptionController.dispose();
   }
-}
 
-class _ZoneEditDialog extends StatelessWidget {
-  const _ZoneEditDialog({
-    required this.zoneNameController,
-    required this.categoryController,
-    required this.descriptionController,
-  });
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _categoryController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
-  final TextEditingController zoneNameController;
-  final TextEditingController categoryController;
-  final TextEditingController descriptionController;
+  void _onSave() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
 
-  static const _primaryOrange = Color(0xFFD94F1E);
-  static const _borderColor = Color(0xFFDDDDDD);
-
-  InputDecoration _inputDecoration(String hint) => InputDecoration(
-    hintText: hint,
-    hintStyle: const TextStyle(color: WHColors.grey, fontSize: 13),
-    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-    filled: true,
-    fillColor: WHColors.surface,
-    border: const OutlineInputBorder(
-      borderRadius: BorderRadius.zero,
-      borderSide: BorderSide(color: _borderColor, width: 1.5),
-    ),
-    enabledBorder: const OutlineInputBorder(
-      borderRadius: BorderRadius.zero,
-      borderSide: BorderSide(color: _borderColor, width: 1.5),
-    ),
-    focusedBorder: const OutlineInputBorder(
-      borderRadius: BorderRadius.zero,
-      borderSide: BorderSide(color: _primaryOrange, width: 1.5),
-    ),
-  );
-
-  Widget _label(String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 6),
-    child: Text(
-      text,
-      style: const TextStyle(
-        fontSize: 13,
-        fontWeight: FontWeight.w500,
-        color: WHColors.textPrimary,
+    // Pop dulu — kembalikan result ke caller.
+    // Caller wajib menunggu dialog ini selesai sebelum dispatch event BLoC
+    // (gunakan await + Future.microtask) agar tidak ada dependents aktif
+    // saat state berubah.
+    Navigator.of(context).pop(
+      ZoneEditResult(
+        zoneName: _nameController.text.trim(),
+        category: _categoryController.text.trim(),
+        description: _descriptionController.text.trim(),
       ),
-    ),
-  );
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Header ──
-            Row(
-              children: [
-                const Icon(
-                  Icons.edit_outlined,
-                  color: _primaryOrange,
-                  size: 18,
-                ),
-                const SizedBox(width: 8),
-                const Text(
-                  'Edit Zone',
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: WHColors.textPrimary,
+    return AlertDialog(
+      backgroundColor: WHColors.surface,
+      title: const Text('Edit Zone', style: WHTypography.heading1),
+      content: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Zone Name
+              TextFormField(
+                controller: _nameController,
+                style: WHTypography.bodyText,
+                decoration: InputDecoration(
+                  labelText: 'Zone Name',
+                  labelStyle: WHTypography.caption,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: WHColors.grey3),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: WHColors.primary),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: WHColors.error2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: WHColors.error2),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                const Spacer(),
-                InkWell(
-                  onTap: () => Navigator.of(context).pop(false),
-                  borderRadius: BorderRadius.circular(4),
-                  child: const Padding(
-                    padding: EdgeInsets.all(4),
-                    child: Icon(Icons.close, size: 18, color: WHColors.grey),
+                validator: (v) =>
+                    (v == null || v.trim().isEmpty) ? 'Name is required' : null,
+              ),
+              const SizedBox(height: 12),
+
+              // Category
+              TextFormField(
+                controller: _categoryController,
+                style: WHTypography.bodyText,
+                decoration: InputDecoration(
+                  labelText: 'Category',
+                  labelStyle: WHTypography.caption,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: WHColors.grey3),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: WHColors.primary),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: WHColors.error2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: WHColors.error2),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-              ],
-            ),
+                validator: (v) => (v == null || v.trim().isEmpty)
+                    ? 'Category is required'
+                    : null,
+              ),
+              const SizedBox(height: 12),
 
-            const SizedBox(height: 4),
-            const Text(
-              'Update zone information below',
-              style: TextStyle(fontSize: 12, color: WHColors.grey),
-            ),
-
-            const SizedBox(height: 16),
-            const Divider(height: 1, color: _borderColor),
-            const SizedBox(height: 16),
-
-            // ── Fields ──
-            _label('Zone Name'),
-            TextField(
-              controller: zoneNameController,
-              style: const TextStyle(fontSize: 13),
-              decoration: _inputDecoration('e.g., Electronic'),
-            ),
-            const SizedBox(height: 14),
-
-            _label('Category'),
-            TextField(
-              controller: categoryController,
-              style: const TextStyle(fontSize: 13),
-              decoration: _inputDecoration('e.g., Electronic'),
-            ),
-            const SizedBox(height: 14),
-
-            _label('Description'),
-            Stack(
-              children: [
-                TextField(
-                  controller: descriptionController,
-                  style: const TextStyle(fontSize: 13),
-                  decoration: _inputDecoration('Add description here ...'),
-                  maxLines: 3,
-                ),
-                const Positioned(
-                  right: 10,
-                  top: 8,
-                  child: Text(
-                    '(Optional)',
-                    style: TextStyle(fontSize: 10, color: Color(0xFFB0B0B0)),
+              // Description (opsional)
+              TextFormField(
+                controller: _descriptionController,
+                style: WHTypography.bodyText,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  labelText: 'Description (optional)',
+                  labelStyle: WHTypography.caption,
+                  alignLabelWithHint: true,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: WHColors.grey3),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: WHColors.primary),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            // ── Actions ──
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      side: const BorderSide(color: _borderColor, width: 1.5),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                    ),
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: WHColors.grey,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    icon: const Icon(
-                      Icons.check_circle_outline,
-                      size: 16,
-                      color: Colors.white,
-                    ),
-                    label: const Text(
-                      'Save',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _primaryOrange,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                      elevation: 0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(null),
+          child: const Text('Cancel', style: TextStyle(color: WHColors.grey3)),
+        ),
+        ElevatedButton(
+          onPressed: _onSave,
+          style: ElevatedButton.styleFrom(backgroundColor: WHColors.primary),
+          child: const Text('Save', style: TextStyle(color: Colors.white)),
+        ),
+      ],
     );
   }
 }

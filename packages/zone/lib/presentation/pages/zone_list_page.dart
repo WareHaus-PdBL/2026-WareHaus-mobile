@@ -50,6 +50,15 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
 
     final edited = await showZoneEditDialog(context, zone);
 
+    // Tunggu satu frame agar dialog sepenuhnya di-dispose sebelum
+    // men-dispatch event ke bloc. Ini mencegah error _dependents.isEmpty
+    // yang terjadi karena race condition antara dialog disposal dan
+    // state change dari BLoC.
+    // Tunggu hingga frame berikutnya selesai di-render (bukan hanya microtask)
+    // agar dialog widget sepenuhnya di-dispose dari tree sebelum BLoC
+    // emit state baru. Ini mencegah assertion _dependents.isEmpty.
+    await Future.delayed(Duration.zero);
+
     if (edited == null || !mounted) return;
 
     final zoneName = toOptionalValue(zone.zoneName, edited.zoneName);
@@ -152,7 +161,17 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
         }
       },
       child: BlocBuilder<ZoneBloc, ZoneState>(
+        // Rebuild juga saat ZoneOperationSuccess agar list ter-update
+        buildWhen: (previous, current) =>
+            current is ZoneLoading ||
+            current is ZoneLoaded ||
+            current is ZoneOperationSuccess ||
+            current is ZoneError,
         builder: (context, state) {
+          // Treat ZoneOperationSuccess sama seperti ZoneLoaded untuk tampilan list
+          final effectiveState = state is ZoneOperationSuccess
+              ? ZoneLoaded(state.zones)
+              : state;
           Widget buildScaffold({required Widget body}) {
             return Scaffold(
               backgroundColor: WHColors.background,
@@ -197,15 +216,15 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
             );
           }
 
-          if (state is ZoneLoading) {
+          if (effectiveState is ZoneLoading) {
             return buildScaffold(
               body: Center(
                 child: CircularProgressIndicator(color: WHColors.primary),
               ),
             );
-          } else if (state is ZoneLoaded) {
+          } else if (effectiveState is ZoneLoaded) {
             return buildScaffold(
-              body: state.zones.isEmpty
+              body: effectiveState.zones.isEmpty
                   ? const Center(
                       child: Text(
                         'No zones available. Tap the + button to create one.',
@@ -228,14 +247,16 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
                               addRepaintBoundaries: true,
                               separatorBuilder: (context, index) =>
                                   const SizedBox(height: 16),
-                              itemCount: state.zones.length,
+                              itemCount: effectiveState.zones.length,
                               itemBuilder: (context, index) {
                                 return ZoneCard(
-                                  zone: state.zones[index],
-                                  onEdit: () =>
-                                      _showEditZoneDialog(state.zones[index]),
-                                  onDelete: () =>
-                                      _confirmDeleteZone(state.zones[index]),
+                                  zone: effectiveState.zones[index],
+                                  onEdit: () => _showEditZoneDialog(
+                                    effectiveState.zones[index],
+                                  ),
+                                  onDelete: () => _confirmDeleteZone(
+                                    effectiveState.zones[index],
+                                  ),
                                   onTap: () async {
                                     final navigator = Navigator.of(context);
                                     showDialog(
@@ -252,8 +273,13 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
                                           PageRouteBuilder(
                                             pageBuilder: (_, _, _) =>
                                                 ZoneDetailPage(
-                                              zone: state.zones[index],
-                                            ),
+                                                  zoneId: effectiveState
+                                                      .zones[index]
+                                                      .id,
+                                                  zoneName: effectiveState
+                                                      .zones[index]
+                                                      .zoneName,
+                                                ),
                                             transitionDuration: Duration.zero,
                                             reverseTransitionDuration:
                                                 Duration.zero,
@@ -279,11 +305,11 @@ class _ZoneListPageState extends State<ZoneListPage> with RouteAware {
                       ),
                     ),
             );
-          } else if (state is ZoneError) {
+          } else if (effectiveState is ZoneError) {
             return buildScaffold(
               body: Center(
                 child: Text(
-                  'Error: ${state.message}',
+                  'Error: ${effectiveState.message}',
                   style: const TextStyle(color: Colors.red),
                 ),
               ),

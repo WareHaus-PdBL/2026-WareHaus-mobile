@@ -163,7 +163,7 @@ class _CreateZonePageState extends State<CreateZonePage> {
   Widget build(BuildContext context) {
     return BlocListener<ZoneBloc, ZoneState>(
       listener: (context, state) {
-        if (state is ZoneLoaded) {
+        if (state is ZoneOperationSuccess) {
           Navigator.of(context).pop(true);
         } else if (state is ZoneError) {
           ScaffoldMessenger.of(

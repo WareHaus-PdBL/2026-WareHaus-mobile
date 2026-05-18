@@ -1,35 +1,50 @@
+import 'dart:io';
+
 import 'package:core_ui/core_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:zone/domain/entities/zone.dart';
 import 'package:zone/presentation/bloc/zone_bloc.dart';
 import 'package:zone/presentation/bloc/zone_event.dart';
 import 'package:zone/presentation/bloc/zone_state.dart';
 import 'package:zone/presentation/widgets/zone_detail_card.dart';
-import 'package:zone/presentation/widgets/zone_visualizer.dart';
+import 'package:zone/zone.dart';
 
 class ZoneDetailPage extends StatefulWidget {
-  final Zone? zone;
   final String? zoneId;
   final String? zoneName;
 
-  const ZoneDetailPage({super.key, this.zone, this.zoneId, this.zoneName});
+  const ZoneDetailPage({super.key, this.zoneId, this.zoneName});
 
   @override
   State<ZoneDetailPage> createState() => _ZoneDetailPageState();
 }
 
 class _ZoneDetailPageState extends State<ZoneDetailPage> {
+  Zone? _zoneFromState(ZoneState state) {
+    if (state is! ZoneLoaded) return null;
+
+    final zoneId = widget.zoneId;
+    if (zoneId != null) {
+      for (final zone in state.zones) {
+        if (zone.id == zoneId) {
+          return zone;
+        }
+      }
+    }
+
+    if (state.zones.isEmpty) return null;
+    return state.zones.first;
+  }
+
   @override
   void initState() {
     super.initState();
-    final zoneId = widget.zone?.id ?? widget.zoneId;
-    final needsDetailsFetch =
-        widget.zone == null ||
-        widget.zone?.shelves == null ||
-        widget.zone!.shelves!.isEmpty;
+    final zoneId = widget.zoneId;
+    stdout.writeln(
+      'ZoneDetailPage initState: zoneId=$zoneId, zoneName=${widget.zoneName}',
+    );
 
-    if (zoneId != null && needsDetailsFetch) {
+    if (zoneId != null) {
       Future.microtask(() {
         context.read<ZoneBloc>().add(GetZoneDetailsEvent(zoneId: zoneId));
       });
@@ -37,7 +52,7 @@ class _ZoneDetailPageState extends State<ZoneDetailPage> {
   }
 
   void _loadZoneDetails() {
-    final zoneId = widget.zone?.id ?? widget.zoneId;
+    final zoneId = widget.zoneId;
     if (zoneId != null) {
       context.read<ZoneBloc>().add(GetZoneDetailsEvent(zoneId: zoneId));
     }
@@ -49,8 +64,7 @@ class _ZoneDetailPageState extends State<ZoneDetailPage> {
       return Scaffold(
         backgroundColor: WHColors.background,
         appBar: WHAppbar(
-          title:
-              'Zone ${widget.zone?.zoneName ?? widget.zoneName ?? widget.zoneId ?? ''}',
+          title: 'Zone ${widget.zoneName ?? widget.zoneId ?? ''}',
         ),
         body: Container(
           color: WHColors.background,
@@ -60,7 +74,7 @@ class _ZoneDetailPageState extends State<ZoneDetailPage> {
             children: [
               const SizedBox(height: 16),
               Text(
-                "All Zones > ${widget.zone?.zoneName ?? widget.zoneName}",
+                "All Zones > ${widget.zoneName}",
                 style: WHTypography.caption,
               ),
               const SizedBox(height: 16),
@@ -73,10 +87,7 @@ class _ZoneDetailPageState extends State<ZoneDetailPage> {
 
     return BlocBuilder<ZoneBloc, ZoneState>(
       builder: (context, state) {
-        final loadedZone = state is ZoneLoaded && state.zones.isNotEmpty
-            ? state.zones.first
-            : null;
-        final zoneToDisplay = loadedZone ?? widget.zone;
+        final zoneToDisplay = _zoneFromState(state);
 
         if (zoneToDisplay != null &&
             zoneToDisplay.shelves != null &&
@@ -107,7 +118,7 @@ class _ZoneDetailPageState extends State<ZoneDetailPage> {
               body: const Center(child: Text('Zone not found')),
             );
           }
-          final zone = state.zones.first;
+          final zone = zoneToDisplay!;
           return buildScaffold(
             body: WHRefresh(
               onRefresh: () async {

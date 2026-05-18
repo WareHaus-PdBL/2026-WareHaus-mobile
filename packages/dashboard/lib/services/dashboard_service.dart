@@ -24,7 +24,9 @@ class DashboardService {
       debugPrint('[DashboardService] Response data: ${response.data}');
 
       final logs = response.data as List;
-      return logs.map((log) => ActivityLog.fromJson(log as Map<String, dynamic>)).toList();
+      return logs
+          .map((log) => ActivityLog.fromJson(log as Map<String, dynamic>))
+          .toList();
     } catch (e) {
       debugPrint('[DashboardService] Error: $e');
       rethrow;
@@ -68,7 +70,9 @@ class ActivityLog {
       quantity: json['quantity'] as int? ?? 0,
       stockAfterMovement: json['stockAfterMovement'] as int? ?? 0,
       time: json['time'] as String? ?? '',
-      createdAt: DateTime.parse(json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+        json['createdAt'] as String? ?? DateTime.now().toIso8601String(),
+      ),
     );
   }
 

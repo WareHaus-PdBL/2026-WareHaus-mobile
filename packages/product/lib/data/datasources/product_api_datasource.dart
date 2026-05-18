@@ -34,7 +34,7 @@ class ProductApiDatasource {
   }
 
   Future<void> addStockLocation(StockLocationInputModel input) async {
-    await dio.put(_stockLocationsPath, data: input.toJson());
+    await dio.post(_stockLocationsPath, data: input.toJson());
   }
 
   Future<void> updateStockLocation(StockLocationInputModel input) async {
@@ -45,7 +45,13 @@ class ProductApiDatasource {
     await dio.post('$_stockLocationsPath/move', data: input.toJson());
   }
 
-  Future<void> deleteProductStockLocation({required String productId, required int shelfId}) async {
-    await dio.delete(_stockLocationsPath, data: {'productId': productId, 'shelfId': shelfId});
+  Future<void> deleteProductStockLocation({
+    required String productId,
+    required int shelfId,
+  }) async {
+    await dio.delete(
+      _stockLocationsPath,
+      data: {'productId': productId, 'shelfId': shelfId},
+    );
   }
 }

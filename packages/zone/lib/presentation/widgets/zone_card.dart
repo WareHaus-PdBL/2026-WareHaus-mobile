@@ -27,7 +27,10 @@ class ZoneCard extends StatelessWidget {
           children: [
             SlidableAction(
               onPressed: (context) {
-                onEdit?.call();
+                Slidable.of(context)?.close();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  onEdit?.call();
+                });
               },
               backgroundColor: WHColors.primary3,
               foregroundColor: Colors.white,
@@ -36,7 +39,10 @@ class ZoneCard extends StatelessWidget {
             ),
             SlidableAction(
               onPressed: (context) {
-                onDelete?.call();
+                Slidable.of(context)?.close();
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  onDelete?.call();
+                });
               },
               backgroundColor: WHColors.error2,
               foregroundColor: Colors.white,
